@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=true
+Icon[en_US]=gnome-panel-launcher
+Name[en_US]=bw_exp.desktop
+Exec=bash /home/experiment/Documents/Experiments/bw/bw_exp.sh
+Name=bw_exp
+Icon=gnome-panel-lasca

@@ -1,0 +1,28 @@
+28.1355 	INFO 	Loaded monitor calibration from ['2023_04_13 15:13']
+28.4808 	EXP 	Created window1 = Window(allowGUI=True, allowStencil=False, autoLog=True, backendConf=UNKNOWN, backgroundFit=<method-wrapper '__getattribute__' of attributeSetter object at 0x13c7d6bf0>, backgroundImage=<method-wrapper '__getattribute__' of attributeSetter object at 0x13c7d6c50>, bitsMode=UNKNOWN, blendMode='avg', bpc=(8, 8, 8), color=array([1, 1, 1]), colorSpace='rgb', depthBits=8, fullscr=<method-wrapper '__getattribute__' of attributeSetter object at 0x13c7d6e00>, gamma=None, gammaErrorPolicy='raise', infoMsg=UNKNOWN, lms=UNKNOWN, monitor=<psychopy.monitors.calibTools.Monitor object at 0x13cab5480>, multiSample=False, name='window1', numSamples=2, pos=[420.0, 150.0], screen=0, size=array([2400, 2400]), stencilBits=0, stereo=False, title='PsychoPy', units='pix', useFBO=True, useRetina=True, viewOri=0.0, viewPos=None, viewScale=None, waitBlanking=True, winType='pyglet')
+28.4809 	EXP 	window1: backgroundImage = ''
+28.4809 	EXP 	window1: backgroundFit = 'none'
+28.4811 	EXP 	window1: mouseVisible = True
+28.4989 	WARNING 	launchHubServer: If using the iohub mouse or eyetracker devices, fullScr should be True.
+34.0868 	INFO 	keyboard.Keyboard is using iohub backend.
+34.0869 	INFO 	keyboard.Keyboard is using iohub backend.
+34.0870 	EXP 	bw: status = STARTED
+34.0906 	EXP 	window1: mouseVisible = True
+34.0963 	EXP 	Created r1 = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0.0, draggable=False, fillColor=array([0.00392157, 0.00392157, 0.00392157]), fillColorSpace='rgb', fillRGB=array([0.00392157, 0.00392157, 0.00392157]), interpolate=True, lineColor=array([-1., -1., -1.]), lineColorSpace='rgb', lineRGB=array([-1, -1, -1]), lineWidth=2.0, name='r1', opacity=1, ori=0.0, pos=array([-200.,  200.]), size=array([200., 150.]), units='pix', vertices=ndarray(...), win=Window(...))
+34.0965 	EXP 	window1: mouseVisible = True
+34.0984 	EXP 	Created r2 = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=-1.0, draggable=False, fillColor=array([0.00392157, 0.00392157, 0.00392157]), fillColorSpace='rgb', fillRGB=array([0.00392157, 0.00392157, 0.00392157]), interpolate=True, lineColor=array([-1., -1., -1.]), lineColorSpace='rgb', lineRGB=array([-1, -1, -1]), lineWidth=2.0, name='r2', opacity=1, ori=0.0, pos=array([  0., 450.]), size=array([150., 200.]), units='pix', vertices=ndarray(...), win=Window(...))
+34.0986 	EXP 	window1: mouseVisible = True
+34.1004 	EXP 	Created r3 = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=-2.0, draggable=False, fillColor=array([0.00392157, 0.00392157, 0.00392157]), fillColorSpace='rgb', fillRGB=array([0.00392157, 0.00392157, 0.00392157]), interpolate=True, lineColor=array([-1., -1., -1.]), lineColorSpace='rgb', lineRGB=array([-1, -1, -1]), lineWidth=2.0, name='r3', opacity=1, ori=0.0, pos=array([200., 200.]), size=array([200., 110.]), units='pix', vertices=ndarray(...), win=Window(...))
+34.1009 	EXP 	window1: mouseVisible = True
+34.1011 	EXP 	window1: mouseVisible = True
+34.1018 	DEPRECATION 	'glack' is not a valid rgb color
+34.1021 	EXP 	window1: mouseVisible = True
+34.1030 	EXP 	window1: mouseVisible = True
+34.1098 	DEPRECATION 	'glack' is not a valid rgb color
+34.1186 	EXP 	window1: mouseVisible = True
+34.1188 	EXP 	window1: mouseVisible = True
+34.1197 	EXP 	window1: mouseVisible = True
+34.1206 	EXP 	window1: mouseVisible = True
+0.3762 	EXP 	window1: mouseVisible = True
+0.3776 	INFO 	saved data to /Users/seanconway/Research/Perceptual_CE/bw/experiment_code/data/511542_bw_2024-10-01_16h06.28.329.psydat
+0.3781 	INFO 	saved data to '/Users/seanconway/Research/Perceptual_CE/bw/experiment_code/data/511542_bw_2024-10-01_16h06.28.329.csv'

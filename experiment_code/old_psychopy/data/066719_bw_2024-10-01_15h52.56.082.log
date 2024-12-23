@@ -1,0 +1,97 @@
+25.9418 	INFO 	Loaded monitor calibration from ['2023_04_13 15:13']
+26.2371 	EXP 	Created window1 = Window(allowGUI=True, allowStencil=False, autoLog=True, backendConf=UNKNOWN, backgroundFit=<method-wrapper '__getattribute__' of attributeSetter object at 0x142449780>, backgroundImage=<method-wrapper '__getattribute__' of attributeSetter object at 0x142449720>, bitsMode=UNKNOWN, blendMode='avg', bpc=(8, 8, 8), color=array([1, 1, 1]), colorSpace='rgb', depthBits=8, fullscr=<method-wrapper '__getattribute__' of attributeSetter object at 0x142449570>, gamma=None, gammaErrorPolicy='raise', infoMsg=UNKNOWN, lms=UNKNOWN, monitor=<psychopy.monitors.calibTools.Monitor object at 0x141ffc670>, multiSample=False, name='window1', numSamples=2, pos=[520.0, 300.0], screen=0, size=array([1600, 1200]), stencilBits=0, stereo=False, title='PsychoPy', units='pix', useFBO=True, useRetina=True, viewOri=0.0, viewPos=None, viewScale=None, waitBlanking=True, winType='pyglet')
+26.2372 	EXP 	window1: backgroundImage = ''
+26.2372 	EXP 	window1: backgroundFit = 'none'
+26.2373 	EXP 	window1: mouseVisible = True
+26.2379 	EXP 	window1: mouseVisible = True
+26.2381 	EXP 	window1: mouseVisible = True
+26.2412 	EXP 	window1: mouseVisible = True
+26.2422 	EXP 	window1: mouseVisible = True
+26.2504 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2511 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2524 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2540 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2555 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2570 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2586 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2594 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2598 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2604 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2617 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2633 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2640 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2651 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2661 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2675 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2687 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2697 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2709 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2721 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2736 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2751 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2762 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2777 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2789 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2800 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2817 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2822 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2826 	DEBUG 	Uploading Texture Font fontname to graphics card
+26.2856 	DEBUG 	Upload of Texture Font fontname complete
+26.2881 	EXP 	window1: mouseVisible = True
+26.2883 	EXP 	window1: mouseVisible = True
+26.2893 	EXP 	window1: mouseVisible = True
+26.2902 	EXP 	window1: mouseVisible = True
+26.2969 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2984 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+26.2988 	DEBUG 	Uploading Texture Font fontname to graphics card
+26.2998 	DEBUG 	Upload of Texture Font fontname complete
+26.3184 	WARNING 	launchHubServer: If using the iohub mouse or eyetracker devices, fullScr should be True.
+30.6053 	INFO 	keyboard.Keyboard is using iohub backend.
+30.6054 	INFO 	keyboard.Keyboard is using iohub backend.
+30.6055 	EXP 	bw: status = STARTED
+30.6061 	EXP 	window1: mouseVisible = True
+30.6088 	EXP 	Created r1 = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0.0, draggable=False, fillColor=array([0.00392157, 0.00392157, 0.00392157]), fillColorSpace='rgb', fillRGB=array([0.00392157, 0.00392157, 0.00392157]), interpolate=True, lineColor=array([-1., -1., -1.]), lineColorSpace='rgb', lineRGB=array([-1, -1, -1]), lineWidth=2.0, name='r1', opacity=1, ori=0.0, pos=array([-200., -100.]), size=array([200., 150.]), units='pix', vertices=ndarray(...), win=Window(...))
+30.6089 	EXP 	window1: mouseVisible = True
+30.6109 	EXP 	Created r2 = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=-1.0, draggable=False, fillColor=array([0.00392157, 0.00392157, 0.00392157]), fillColorSpace='rgb', fillRGB=array([0.00392157, 0.00392157, 0.00392157]), interpolate=True, lineColor=array([-1., -1., -1.]), lineColorSpace='rgb', lineRGB=array([-1, -1, -1]), lineWidth=2.0, name='r2', opacity=1, ori=0.0, pos=array([  0., 150.]), size=array([150., 200.]), units='pix', vertices=ndarray(...), win=Window(...))
+30.6110 	EXP 	window1: mouseVisible = True
+30.6129 	EXP 	Created r3 = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=-2.0, draggable=False, fillColor=array([0.00392157, 0.00392157, 0.00392157]), fillColorSpace='rgb', fillRGB=array([0.00392157, 0.00392157, 0.00392157]), interpolate=True, lineColor=array([-1., -1., -1.]), lineColorSpace='rgb', lineRGB=array([-1, -1, -1]), lineWidth=2.0, name='r3', opacity=1, ori=0.0, pos=array([ 200., -100.]), size=array([200., 110.]), units='pix', vertices=ndarray(...), win=Window(...))
+30.6133 	EXP 	window1: mouseVisible = True
+30.6135 	EXP 	window1: mouseVisible = True
+30.6144 	EXP 	window1: mouseVisible = True
+30.6153 	EXP 	window1: mouseVisible = True
+30.6216 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+30.6221 	DEBUG 	Uploading Texture Font fontname to graphics card
+30.6273 	DEBUG 	Upload of Texture Font fontname complete
+30.6296 	EXP 	window1: mouseVisible = True
+30.6298 	EXP 	window1: mouseVisible = True
+30.6307 	EXP 	window1: mouseVisible = True
+30.6315 	EXP 	window1: mouseVisible = True
+30.6360 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+30.6365 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+30.6369 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+30.6374 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+30.6378 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+30.6390 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+30.6398 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+30.6403 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+30.6408 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+30.6413 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+30.6418 	DEBUG 	Uploading Texture Font fontname to graphics card
+30.6428 	DEBUG 	Upload of Texture Font fontname complete
+0.3354 	INFO 	Keyboard events cleared
+0.3350 	EXP 	r1: autoDraw = True
+0.3350 	EXP 	r2: autoDraw = True
+0.3350 	EXP 	r3: autoDraw = True
+5.6133 	DATA 	Mouse: Left button down, pos=(184,57)
+5.7814 	DATA 	Mouse:  Left button up, pos=(184,57)
+6.2554 	DATA 	Mouse: Left button down, pos=(327,106)
+6.3696 	DATA 	Mouse:  Left button up, pos=(327,106)
+6.7734 	DATA 	Keypress: j
+6.7823 	EXP 	r1: autoDraw = False
+6.7823 	EXP 	r2: autoDraw = False
+6.7823 	EXP 	r3: autoDraw = False
+6.7856 	EXP 	bw: status = STOPPED
+6.7882 	INFO 	saved data to '/Users/seanconway/Research/Perceptual_CE/bw/experiment_code/data/066719_bw_2024-10-01_15h52.56.082.csv'
+6.7886 	INFO 	saved data to /Users/seanconway/Research/Perceptual_CE/bw/experiment_code/data/066719_bw_2024-10-01_15h52.56.082.psydat
+6.8135 	EXP 	window1: mouseVisible = True
+7.0325 	DEBUG 	Saving data for bw ExperimentHandler

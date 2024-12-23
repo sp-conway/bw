@@ -1,0 +1,57 @@
+29.1225 	INFO 	Loaded monitor calibration from ['2023_04_13 15:13']
+29.4157 	EXP 	Created window1 = Window(allowGUI=True, allowStencil=False, autoLog=True, backendConf=UNKNOWN, backgroundFit=<method-wrapper '__getattribute__' of attributeSetter object at 0x139226530>, backgroundImage=<method-wrapper '__getattribute__' of attributeSetter object at 0x1392265c0>, bitsMode=UNKNOWN, blendMode='avg', bpc=(8, 8, 8), color=array([1, 1, 1]), colorSpace='rgb', depthBits=8, fullscr=<method-wrapper '__getattribute__' of attributeSetter object at 0x139226770>, gamma=None, gammaErrorPolicy='raise', infoMsg=UNKNOWN, lms=UNKNOWN, monitor=<psychopy.monitors.calibTools.Monitor object at 0x138ded060>, multiSample=False, name='window1', numSamples=2, pos=[520.0, 300.0], screen=0, size=array([1600, 1200]), stencilBits=0, stereo=False, title='PsychoPy', units='pix', useFBO=True, useRetina=True, viewOri=0.0, viewPos=None, viewScale=None, waitBlanking=True, winType='pyglet')
+29.4158 	EXP 	window1: backgroundImage = ''
+29.4158 	EXP 	window1: backgroundFit = 'none'
+29.4159 	EXP 	window1: mouseVisible = True
+29.4164 	EXP 	window1: mouseVisible = True
+29.4167 	EXP 	window1: mouseVisible = True
+29.4196 	EXP 	window1: mouseVisible = True
+29.4205 	EXP 	window1: mouseVisible = True
+29.4288 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4295 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4308 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4324 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4340 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4356 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4372 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4380 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4384 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4390 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4404 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4420 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4427 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4438 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4449 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4463 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4475 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4485 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4498 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4510 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4525 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4540 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4552 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4566 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4578 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4589 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4606 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4611 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4616 	DEBUG 	Uploading Texture Font fontname to graphics card
+29.4646 	DEBUG 	Upload of Texture Font fontname complete
+29.4671 	EXP 	window1: mouseVisible = True
+29.4673 	EXP 	window1: mouseVisible = True
+29.4683 	EXP 	window1: mouseVisible = True
+29.4692 	EXP 	window1: mouseVisible = True
+29.4758 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4773 	DEBUG 	TextBox2 loaded 1 chars with 0 blanks and 1 valid
+29.4777 	DEBUG 	Uploading Texture Font fontname to graphics card
+29.4787 	DEBUG 	Upload of Texture Font fontname complete
+29.4971 	WARNING 	launchHubServer: If using the iohub mouse or eyetracker devices, fullScr should be True.
+30.1860 	INFO 	keyboard.Keyboard is using iohub backend.
+30.1861 	INFO 	keyboard.Keyboard is using iohub backend.
+30.1862 	EXP 	bw: status = STARTED
+30.1869 	EXP 	window1: mouseVisible = True
+30.1894 	EXP 	Created r1 = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0.0, draggable=False, fillColor=array([0.00392157, 0.00392157, 0.00392157]), fillColorSpace='rgb', fillRGB=array([0.00392157, 0.00392157, 0.00392157]), interpolate=True, lineColor=array([-1., -1., -1.]), lineColorSpace='rgb', lineRGB=array([-1, -1, -1]), lineWidth=2.0, name='r1', opacity=1, ori=0.0, pos=array([-200.,  200.]), size=array([1., 1.]), units='pix', vertices=ndarray(...), win=Window(...))
+30.2117 	EXP 	window1: mouseVisible = True
+30.2133 	DEBUG 	Saving data for bw ExperimentHandler
+30.2138 	INFO 	saved data to /Users/seanconway/Research/Perceptual_CE/bw/experiment_code/data/461874_bw_2024-10-01_16h12.57.460.psydat
+30.2143 	INFO 	saved data to '/Users/seanconway/Research/Perceptual_CE/bw/experiment_code/data/461874_bw_2024-10-01_16h12.57.460.csv'

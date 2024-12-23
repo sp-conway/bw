@@ -1,0 +1,36 @@
+27.0559 	INFO 	Loaded monitor calibration from ['2023_04_13 15:13']
+27.3514 	EXP 	Created window1 = Window(allowGUI=True, allowStencil=False, autoLog=True, backendConf=UNKNOWN, backgroundFit=<method-wrapper '__getattribute__' of attributeSetter object at 0x134d9e890>, backgroundImage=<method-wrapper '__getattribute__' of attributeSetter object at 0x134d9e8f0>, bitsMode=UNKNOWN, blendMode='avg', bpc=(8, 8, 8), color=array([1, 1, 1]), colorSpace='rgb', depthBits=8, fullscr=<method-wrapper '__getattribute__' of attributeSetter object at 0x134d9eaa0>, gamma=None, gammaErrorPolicy='raise', infoMsg=UNKNOWN, lms=UNKNOWN, monitor=<psychopy.monitors.calibTools.Monitor object at 0x134978640>, multiSample=False, name='window1', numSamples=2, pos=[420.0, 150.0], screen=0, size=array([2400, 2400]), stencilBits=0, stereo=False, title='PsychoPy', units='pix', useFBO=True, useRetina=True, viewOri=0.0, viewPos=None, viewScale=None, waitBlanking=True, winType='pyglet')
+27.3515 	EXP 	window1: backgroundImage = ''
+27.3515 	EXP 	window1: backgroundFit = 'none'
+27.3517 	EXP 	window1: mouseVisible = True
+27.3661 	WARNING 	launchHubServer: If using the iohub mouse or eyetracker devices, fullScr should be True.
+31.6463 	INFO 	keyboard.Keyboard is using iohub backend.
+31.6464 	INFO 	keyboard.Keyboard is using iohub backend.
+31.6464 	EXP 	bw: status = STARTED
+31.6471 	EXP 	window1: mouseVisible = True
+31.6516 	EXP 	Created r1 = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0.0, draggable=False, fillColor=array([0.00392157, 0.00392157, 0.00392157]), fillColorSpace='rgb', fillRGB=array([0.00392157, 0.00392157, 0.00392157]), interpolate=True, lineColor=array([-1., -1., -1.]), lineColorSpace='rgb', lineRGB=array([-1, -1, -1]), lineWidth=2.0, name='r1', opacity=1, ori=0.0, pos=array([-200.,  200.]), size=array([200., 150.]), units='pix', vertices=ndarray(...), win=Window(...))
+31.6518 	EXP 	window1: mouseVisible = True
+31.6536 	EXP 	Created r2 = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=-1.0, draggable=False, fillColor=array([0.00392157, 0.00392157, 0.00392157]), fillColorSpace='rgb', fillRGB=array([0.00392157, 0.00392157, 0.00392157]), interpolate=True, lineColor=array([-1., -1., -1.]), lineColorSpace='rgb', lineRGB=array([-1, -1, -1]), lineWidth=2.0, name='r2', opacity=1, ori=0.0, pos=array([  0., 450.]), size=array([150., 200.]), units='pix', vertices=ndarray(...), win=Window(...))
+31.6538 	EXP 	window1: mouseVisible = True
+31.6556 	EXP 	Created r3 = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=-2.0, draggable=False, fillColor=array([0.00392157, 0.00392157, 0.00392157]), fillColorSpace='rgb', fillRGB=array([0.00392157, 0.00392157, 0.00392157]), interpolate=True, lineColor=array([-1., -1., -1.]), lineColorSpace='rgb', lineRGB=array([-1, -1, -1]), lineWidth=2.0, name='r3', opacity=1, ori=0.0, pos=array([200., 200.]), size=array([200., 110.]), units='pix', vertices=ndarray(...), win=Window(...))
+31.6561 	EXP 	window1: mouseVisible = True
+31.6563 	EXP 	window1: mouseVisible = True
+31.6571 	EXP 	window1: mouseVisible = True
+31.6579 	EXP 	window1: mouseVisible = True
+31.6723 	EXP 	window1: mouseVisible = True
+31.6725 	EXP 	window1: mouseVisible = True
+31.6734 	EXP 	window1: mouseVisible = True
+31.6742 	EXP 	window1: mouseVisible = True
+0.3500 	INFO 	Keyboard events cleared
+0.3484 	EXP 	r1: autoDraw = True
+0.3484 	EXP 	r2: autoDraw = True
+0.3484 	EXP 	r3: autoDraw = True
+6.0329 	DATA 	Keypress: escape
+6.2123 	EXP 	bw: status = STOPPED
+6.2213 	EXP 	r1: autoDraw = False
+6.2213 	EXP 	r2: autoDraw = False
+6.2213 	EXP 	r3: autoDraw = False
+6.2214 	EXP 	bw: status = STOPPED
+6.2236 	INFO 	saved data to '/Users/seanconway/Research/Perceptual_CE/bw/experiment_code/data/365585_bw_2024-10-01_15h55.01.785.csv'
+6.2240 	INFO 	saved data to /Users/seanconway/Research/Perceptual_CE/bw/experiment_code/data/365585_bw_2024-10-01_15h55.01.785.psydat
+6.2459 	EXP 	window1: mouseVisible = True
