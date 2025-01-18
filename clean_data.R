@@ -33,6 +33,7 @@ clean <- function(f,n_trials=598){ # finished ppts should have 598 rows
              a1=h1*w1,
              a2=h2*w2,
              a3=h3*w3,
+             set=recode(set,"a-b-da"="h","a-b-db"="w"), # RECODING TO MAKE SURE ITS UNDERSTANDABLE
              across(c(diag,distance),function(x) na_if(x,999)),
              across(c(rt_best,rt_worst),function(x) x*1000)) %>%
       select(-c(choice_1,choice_2,rt_1,rt_2,computer_n)) %>%
