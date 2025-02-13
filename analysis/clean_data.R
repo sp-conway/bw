@@ -12,6 +12,7 @@ data_files_raw_all <- map(data_folders_raw, function(x) dir_ls(x)) %>%
   list_c()
 
 clean <- function(f,n_trials=598){ # finished ppts should have 598 rows
+  print(f)
   comp <- as.numeric(str_extract(f, "(?<=raw/c).{1,20}(?=/bw)"))
   d <- data.table::fread(f) %>%
     mutate(sub_n=str_extract(sub_n,"[:digit:]{1,3}"))
@@ -38,7 +39,9 @@ clean <- function(f,n_trials=598){ # finished ppts should have 598 rows
              across(c(rt_best,rt_worst),function(x) x*1000)) %>%
       select(-c(choice_1,choice_2,rt_1,rt_2,computer_n)) %>%
       relocate(c(block_n,trial_n),.after=bw_cond) %>%
-      relocate(c(a1,a2,a3),.after = w3)
+      relocate(c(a1,a2,a3),.after = w3) %>%
+      filter(bw_cond=="bw" & (rt_best >=100 & rt_best<=10000) | # FILTER OUT SLOW AND FAST RTS BUT ONLY FOR FIRST CHOICE
+             bw_cond=="wb" & (rt_worst >=100 & rt_worst<=10000) )
     return(dd)
   }
 }

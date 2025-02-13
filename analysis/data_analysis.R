@@ -49,7 +49,7 @@ d_corr_props %>%
   facet_grid(effect~choice,scales="free_y")+
   ggthemes::theme_few()+
   theme(text=element_text(size=15))
-ggsave(filename=here("plots","prop_correct_hist.jpeg"),width=5,height=4)
+ggsave(filename=here("analysis","plots","prop_correct_hist.jpeg"),width=5,height=4)
 d_corr_props_dist <- d_corr %>%
   filter(effect=="attraction") %>%
   group_by(sub_n,distance) %>%
@@ -63,7 +63,7 @@ d_corr_props_dist %>%
   geom_histogram(fill="lightblue",col="black")+
   facet_grid(distance~choice,scales="free_y")+
   ggthemes::theme_few()
-ggsave(filename=here("plots","prop_correct_attraction_hist.jpeg"),width=5,height=4)
+ggsave(filename=here("analysis","plots","prop_correct_attraction_hist.jpeg"),width=5,height=4)
 
 m_prop_corr_by_cond <- d_corr %>%
   group_by(sub_n,effect) %>%
@@ -94,7 +94,7 @@ m_prop_corr_by_cond %>%
   facet_grid(effect~.)+
   labs(x="which choice",y="mean proportion")+ 
   ggthemes::theme_few()
-ggsave(filename=here("plots","prop_correct_means.jpeg"),width=6,height=4)
+ggsave(filename=here("analysis","plots","prop_correct_means.jpeg"),width=6,height=4)
 
 d_corr_att_by_dist <- d_corr %>%
   filter(effect=="attraction") %>%
@@ -125,7 +125,7 @@ d_corr_att_by_dist %>%
   facet_grid(bw_cond~.)+
   labs(x="target-decoy distance",y="mean proportion")+ 
   ggthemes::theme_few()
-ggsave(filename=here("plots","att_prop_correct_means.jpeg"),width=6,height=4)
+ggsave(filename=here("analysis","plots","att_prop_correct_means.jpeg"),width=6,height=4)
 
 
 # rts ================================================================================
@@ -142,7 +142,7 @@ d_exp %>%
   theme(legend.position="inside",
         legend.key.size = unit(5,units = "mm"),
         legend.position.inside = c(.38,.9))
-ggsave(filename=here("plots","rt_hists_all.jpeg"),width=6,height=5)
+ggsave(filename=here("analysis","plots","rt_hists_all.jpeg"),width=6,height=5)
 
 d_att %>%
   pivot_longer(contains("rt")) %>%
@@ -157,7 +157,7 @@ d_att %>%
   theme(legend.position="inside",
         legend.key.size = unit(5,units = "mm"),
         legend.position.inside = c(.38,.9))
-ggsave(filename=here("plots","rt_hists_attraction.jpeg"),width=6,height=5)
+ggsave(filename=here("analysis","plots","rt_hists_attraction.jpeg"),width=6,height=5)
 
 
 d_att %>%
@@ -270,7 +270,7 @@ ggplot(d_att_choice_mean_by_set_dist,aes(m_prop_worst,m_prop_best))+
   ggthemes::theme_few()+
   facet_grid(as.factor(as.numeric(distance))~set)+
   theme(text = element_text(size=14),plot.title = element_text(hjust=0.5))
-ggsave(filename = here("plots","att_mean_props_by_set_dist.jpeg"),width=4,height=5)
+ggsave(filename = here("analysis","plots","att_mean_props_by_set_dist.jpeg"),width=4,height=5)
 
 d_att_choice_mean_by_dist <- compute_mean_choice_props(d_att_choice,groups=vars(distance,type))
 
@@ -286,7 +286,7 @@ ggplot(d_att_choice_mean_by_dist,aes(m_prop_worst,m_prop_best,col=option))+
   ggthemes::theme_few()+
   facet_grid(as.factor(as.numeric(distance))~.)+
   theme(text = element_text(size=14),plot.title = element_text(hjust=0.5))
-ggsave(filename = here("plots","att_mean_props_by_dist.jpeg"),width=4,height=5)
+ggsave(filename = here("analysis","plots","att_mean_props_by_dist.jpeg"),width=4,height=5)
 
 model_preds <- here("bw_sim_from_new_bayes","bw_preds_clean.csv") %>%
   read_csv()
@@ -311,7 +311,7 @@ model_data_by_dist %>%
   facet_grid(as.factor(as.numeric(distance))~.)+
   theme(text = element_text(size=14),plot.title = element_text(hjust=0.5))+
   theme(legend.key = element_rect(fill = "white"))
-ggsave(filename = here("plots","att_mean_props_by_dist_compare_to_model.jpeg"),width=4,height=5)
+ggsave(filename = here("analysis","plots","att_mean_props_by_dist_compare_to_model.jpeg"),width=4,height=5)
 
 model_data_by_dist_by_set <- model_preds %>%
   group_by(set,distance,choice) %>%
@@ -333,4 +333,4 @@ model_data_by_dist_by_set %>%
   facet_grid(as.factor(as.numeric(distance))~set)+
   theme(text = element_text(size=14),plot.title = element_text(hjust=0.5))+
   theme(legend.key = element_rect(fill = "white"))
-ggsave(filename = here("plots","att_mean_props_by_set_dist_compare_to_model.jpeg"),width=4,height=5)
+ggsave(filename = here("analysis","plots","att_mean_props_by_set_dist_compare_to_model.jpeg"),width=4,height=5)
