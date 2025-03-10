@@ -1,7 +1,10 @@
 rm(list=ls())
 
+# playing around with the maxdiff model to understand how it works
+
 do_maxdiff <- function(U){
   # U <- c(9,8,7) # t c d 
+  # browser()
   Ud <- outer(U,U,"-")
   p_bw <- matrix(NA,3,3)
   for(i in 1:3){
