@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+*fit.RData
+*p_best.RData
+*p_worst.RData
+*rep.RData

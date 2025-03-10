@@ -1,4 +1,3 @@
-
 data {
   int<lower=0> n_subs; // number of subjects
   int N; // total data points
@@ -106,7 +105,7 @@ model {
   b_competitor ~ normal(0,5); // effect of competitor (target is reference)
   b_decoy ~ normal(0,5); // effect of decoy (target is reference)
   b_0 ~ normal(0,5); // global intercept
-  b_0_s_sigma ~ cauchy(0,2.5);
+  b_0_s_sigma ~ cauchy(0,0.5);
   b_0_s ~ normal(0, b_0_s_sigma); // 
   for(m in 1:N){
    counts[m,]~ multinomial(to_vector(p_rank[m, ]));
@@ -118,7 +117,7 @@ model {
 generated quantities {
   matrix[N,3] p_best;
   matrix[N,3] p_worst;
-  array[N,6] int p_rank_rep;
+  array[N,6] int counts_rank_rep;
   for(m in 1:N){
     p_best[m,1]=p_rank[m,1]+p_rank[m,2];
     p_best[m,2]=p_rank[m,3]+p_rank[m,4];
@@ -128,6 +127,6 @@ generated quantities {
     p_worst[m,2]=p_rank[m,1]+p_rank[m,6];
     p_worst[m,3]=p_rank[m,2]+p_rank[m,4];
     
-    p_rank_rep[m,]=multinomial_rng(to_vector(p_rank[m, ]), sum(counts[m,]));
+    counts_rank_rep[m,]=multinomial_rng(to_vector(p_rank[m, ]), sum(counts[m,]));
   }
 }

@@ -10,7 +10,7 @@ library(bayesplot)
 
 # general setup ====================================================================================
 # model settings
-which_model <- "maxdiff_1"
+which_model <- "maxdiff_2"
 debug_model <- F
 
 # paths
@@ -76,6 +76,8 @@ d_counts <- d %>%
   relocate(c(tcd, tdc, ctd, cdt, dtc, dct),.after=distance)
 
 n_subs <- length(unique(d_counts$sub_n))
+
+# re-numbering subjects to be sequential
 subs_key <- tibble(
   sub_n = sort(unique(d_counts$sub_n)),
   sub_n_new = seq(1,n_subs,1)
@@ -158,16 +160,35 @@ if(!file_exists(fit_file) | debug_model){
   })
   
   try({
-    p <- mcmc_trace(fit,c("b_decoy"))
-    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_trace.jpeg")),width=5,height=4)
+    p <- mcmc_trace(fit,c("b_target"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_target_trace.jpeg")),width=5,height=4)
     rm(p)
   })
   
   try({
-    p <- mcmc_trace(fit,c("b_0_s_sigma"))
-    ggsave(p,filename=path(model_dir,glue("{which_model}_b_0_s_sigma_trace.jpeg")),width=5,height=4)
+    p <- mcmc_trace(fit,c("b_target_s_sigma"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_target_s_sigma_trace.jpeg")),width=5,height=4)
     rm(p)
   })
+  
+  try({
+    p <- mcmc_trace(fit,c("b_decoy"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,c("b_decoy_s_sigma"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_s_sigma_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,c("b_competitor_s_sigma"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_s_sigma_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
   
   try({
     p <- mcmc_hist(fit,c("lp__"))
@@ -184,7 +205,14 @@ if(!file_exists(fit_file) | debug_model){
   })
   
   try({
-    p <- mcmc_hist(fit,c("b_distance5","b_distance9","b_distance14"))
+    p <- mcmc_hist(fit,c("b_target"))
+    p
+    ggsave(p, filename=path(model_dir,glue("{which_model}_b_target_hist.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_hist(fit,c("b_distance5","b_distance9","b_distance14"),facet_args = list(scales="fixed"))
     ggsave(p, filename=path(model_dir,glue("{which_model}_b_distance_hist.jpeg")),width=5,height=4)
     rm(p)
   })
@@ -204,16 +232,21 @@ if(!file_exists(fit_file) | debug_model){
   
   try({
     p <- mcmc_hist(fit,c("b_decoy"))
-    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_hist.jpeg")),width=5,height=4)
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_hist.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+   try({
+    p <- mcmc_hist(fit,c("b_decoy_s_sigma"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_s_sigma_hist.jpeg")),width=5,height=4)
     rm(p)
   })
   
   try({
-    p <- mcmc_hist(fit,c("b_0_s_sigma"))
-    ggsave(p,filename=path(model_dir,glue("{which_model}_b_0_s_sigma_hist.jpeg")),width=5,height=4)
+    p <- mcmc_hist(fit,c("b_competitor_s_sigma"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_s_sigma_hist.jpeg")),width=5,height=4)
     rm(p)
   })
-  
   try({
     p <- mcmc_intervals(fit,c("lp__"))
     p
@@ -229,7 +262,7 @@ if(!file_exists(fit_file) | debug_model){
   })
   
   try({
-    p <- mcmc_intervals(fit,c("b_distance5","b_distance9","b_distance14"))
+    p <- mcmc_intervals(fit,c("b_distance5","b_distance9","b_distance14"),facet_args = list(scales="fixed"))
     ggsave(p, filename=path(model_dir,glue("{which_model}_b_distance_intervals.jpeg")),width=5,height=4)
     rm(p)
   })
@@ -253,17 +286,25 @@ if(!file_exists(fit_file) | debug_model){
     rm(p)
   })
   
+   try({
+    p <- mcmc_intervals(fit,c("b_decoy_s_sigma"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_s_sigma_intervals.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
   try({
-    p <- mcmc_intervals(fit,c("b_0_s_sigma"))
-    ggsave(p,filename=path(model_dir,glue("{which_model}_b_0_s_sigma_intervals.jpeg")),width=5,height=4)
+    p <- mcmc_intervals(fit,c("b_competitor_s_sigma"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_s_sigma_intervals.jpeg")),width=5,height=4)
     rm(p)
   })
   # get model predictions ================================================================================================================================================
-  p_best <- extract(fit, pars="p")$p_best
-  p_worst <- extract(fit, pars="p")$p_worst
-  p_rank_rep <- extract(fit, pars="p")$p_rank_rep
+  p_best <- extract(fit, pars="p_best")$p_best
+  p_worst <- extract(fit, pars="p_worst")$p_worst
+  counts_rank_rep <- extract(fit, pars="counts_rank_rep")$counts_rank_rep
+  
   save(p_best,file=path(model_dir,glue("{which_model}_p_best.RData")))
-  save(p_best,file=path(model_dir,glue("{which_model}_p_best.RData")))
+  save(p_worst,file=path(model_dir,glue("{which_model}_p_worst.RData")))
+  save(counts_rank_rep,file=path(model_dir,glue("{which_model}_counts_rank_rep.RData")))
 }
 
 
