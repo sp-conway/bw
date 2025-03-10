@@ -10,8 +10,8 @@ library(bayesplot)
 
 # general setup ====================================================================================
 # model settings
-which_model <- "maxdiff_2"
-debug_model <- F
+which_model <- "maxdiff_separateU_1"
+debug_model <- T
 
 # paths
 model_dir <- here("analysis","bayes",which_model)
@@ -160,10 +160,23 @@ if(!file_exists(fit_file) | debug_model){
   })
   
   try({
+    p <- mcmc_trace(fit,c("b_competitor_best"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_best_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,c("b_competitor_worst"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_worst_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
     p <- mcmc_trace(fit,c("b_target"))
     ggsave(p,filename=path(model_dir,glue("{which_model}_b_target_trace.jpeg")),width=5,height=4)
     rm(p)
   })
+  
   
   try({
     p <- mcmc_trace(fit,c("b_target_s_sigma"))
@@ -174,6 +187,18 @@ if(!file_exists(fit_file) | debug_model){
   try({
     p <- mcmc_trace(fit,c("b_decoy"))
     ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,c("b_decoy_best"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_best_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,c("b_decoy_worst"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_worst_trace.jpeg")),width=5,height=4)
     rm(p)
   })
   
@@ -211,6 +236,7 @@ if(!file_exists(fit_file) | debug_model){
     rm(p)
   })
   
+  
   try({
     p <- mcmc_hist(fit,c("b_distance5","b_distance9","b_distance14"),facet_args = list(scales="fixed"))
     ggsave(p, filename=path(model_dir,glue("{which_model}_b_distance_hist.jpeg")),width=5,height=4)
@@ -231,10 +257,35 @@ if(!file_exists(fit_file) | debug_model){
   })
   
   try({
+    p <- mcmc_hist(fit,c("b_competitor_best"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_best_hist.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_hist(fit,c("b_competitor_worst"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_worst_hist.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
     p <- mcmc_hist(fit,c("b_decoy"))
     ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_hist.jpeg")),width=5,height=4)
     rm(p)
   })
+  
+  try({
+    p <- mcmc_hist(fit,c("b_decoy_best"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_best_hist.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_hist(fit,c("b_decoy_worst"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_worst_hist.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
   
    try({
     p <- mcmc_hist(fit,c("b_decoy_s_sigma"))
@@ -281,8 +332,32 @@ if(!file_exists(fit_file) | debug_model){
   })
   
   try({
+    p <- mcmc_intervals(fit,c("b_competitor_best"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_best_intervals.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_intervals(fit,c("b_competitor_worst"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_worst_intervals.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
     p <- mcmc_intervals(fit,c("b_decoy"))
-    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_intervals.jpeg")),width=5,height=4)
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_intervals.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_intervals(fit,c("b_decoy_best"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_best_intervals.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_intervals(fit,c("b_decoy_worst"))
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_worst_intervals.jpeg")),width=5,height=4)
     rm(p)
   })
   

@@ -140,5 +140,8 @@ data_preds_all %>%
   # scale_shape_manual(name="",
   #                    values = c(1,4))+
   facet_grid(distance~source)+
-  ggthemes::theme_few()
-  
+  labs(x="mean p(worst)",y="mean p(best)")+
+  ggthemes::theme_few()+
+  theme(text = element_text(size=19))
+
+ggsave(filename = path(model_dir,glue("{which_model}_model_v_data.jpeg")),width=6,height=8)  
