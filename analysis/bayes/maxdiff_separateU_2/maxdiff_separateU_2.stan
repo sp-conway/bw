@@ -44,33 +44,12 @@ parameters {
   
   real<lower=0> b_competitor_s_sigma;
   real<lower=0> b_decoy_s_sigma;
-  real<lower=0> b_competitor_s_intxn_sigma;
-  real<lower=0> b_decoy_s_intxn_sigma;
   
   vector[n_subs] b_competitor_best_s; // 
   vector[n_subs] b_decoy_best_s; //
   vector[n_subs] b_competitor_worst_s; // 
   vector[n_subs] b_decoy_worst_s; //
   
-  vector[n_subs] b_competitor_best_x_distance2_s; // 
-  vector[n_subs] b_competitor_best_x_distance5_s;
-  vector[n_subs] b_competitor_best_x_distance9_s;
-  vector[n_subs] b_competitor_best_x_distance14_s;
-  
-  vector[n_subs] b_competitor_worst_x_distance2_s; // 
-  vector[n_subs] b_competitor_worst_x_distance5_s;
-  vector[n_subs] b_competitor_worst_x_distance9_s;
-  vector[n_subs] b_competitor_worst_x_distance14_s;
-  
-  vector[n_subs] b_decoy_best_x_distance2_s; // 
-  vector[n_subs] b_decoy_best_x_distance5_s;
-  vector[n_subs] b_decoy_best_x_distance9_s;
-  vector[n_subs] b_decoy_best_x_distance14_s;
-  
-  vector[n_subs] b_decoy_worst_x_distance2_s; // 
-  vector[n_subs] b_decoy_worst_x_distance5_s;
-  vector[n_subs] b_decoy_worst_x_distance9_s;
-  vector[n_subs] b_decoy_worst_x_distance14_s;
 }
 
 transformed parameters{
@@ -96,14 +75,10 @@ transformed parameters{
     // Utility of competitor option          
     U_best[i,2] = b_competitor_best+
                   b_competitor_best_s[sub_ns[i]]+
-                  (b_competitor_best_x_distance2+
-                  b_competitor_best_x_distance2_s[sub_ns[i]])*distance2[i]+
-                  (b_competitor_best_x_distance5+
-                  b_competitor_best_x_distance5_s[sub_ns[i]])*distance5[i]+
-                  (b_competitor_best_x_distance9+
-                  b_competitor_best_x_distance9_s[sub_ns[i]])*distance9[i]+
-                  (b_competitor_best_x_distance14+
-                  b_competitor_best_x_distance14_s[sub_ns[i]])*distance14[i]+
+                  b_competitor_best_x_distance2*distance2[i]+
+                  b_competitor_best_x_distance5*distance5[i]+
+                  b_competitor_best_x_distance9*distance9[i]+
+                  b_competitor_best_x_distance14*distance14[i]+
                  (b_w*c_w[i] + 
                   b_distance5*distance5[i] +
                   b_distance9*distance9[i] + 
@@ -112,14 +87,10 @@ transformed parameters{
     // Utility of competitor option          
     U_worst[i,2] = b_competitor_worst+
               b_competitor_worst_s[sub_ns[i]]+
-              (b_competitor_worst_x_distance2+
-                  b_competitor_worst_x_distance2_s[sub_ns[i]])*distance2[i]+
-                  (b_competitor_worst_x_distance5+
-                  b_competitor_worst_x_distance5_s[sub_ns[i]])*distance5[i]+
-                  (b_competitor_worst_x_distance9+
-                  b_competitor_worst_x_distance9_s[sub_ns[i]])*distance9[i]+
-                  (b_competitor_worst_x_distance14+
-                  b_competitor_worst_x_distance14_s[sub_ns[i]])*distance14[i]+
+              b_competitor_worst_x_distance2*distance2[i]+
+              b_competitor_worst_x_distance5*distance5[i]+
+              b_competitor_worst_x_distance9*distance9[i]+
+              b_competitor_worst_x_distance14*distance14[i]+
               -(b_w*c_w[i] + 
               b_distance5*distance5[i] +
               b_distance9*distance9[i] + 
@@ -128,27 +99,19 @@ transformed parameters{
     // Utility of decoy option
     U_best[i,3] = b_decoy_best+
               b_decoy_best_s[sub_ns[i]]+
-              (b_decoy_best_x_distance2+
-                  b_decoy_best_x_distance2_s[sub_ns[i]])*distance2[i]+
-                  (b_decoy_best_x_distance5+
-                  b_decoy_best_x_distance5_s[sub_ns[i]])*distance5[i]+
-                  (b_decoy_best_x_distance9+
-                  b_decoy_best_x_distance9_s[sub_ns[i]])*distance9[i]+
-                  (b_decoy_best_x_distance14+
-                  b_decoy_best_x_distance14_s[sub_ns[i]])*distance14[i]+
+              b_decoy_best_x_distance2*distance2[i]+
+              b_decoy_best_x_distance5*distance5[i]+
+              b_decoy_best_x_distance9*distance9[i]+
+              b_decoy_best_x_distance14*distance14[i]+
               b_w*d_w[i];
               
               // Utility of decoy option
     U_worst[i,3] = b_decoy_worst+
               b_decoy_worst_s[sub_ns[i]]+
-              (b_decoy_worst_x_distance2+
-                  b_decoy_worst_x_distance2_s[sub_ns[i]])*distance2[i]+
-                  (b_decoy_worst_x_distance5+
-                  b_decoy_worst_x_distance5_s[sub_ns[i]])*distance5[i]+
-                  (b_decoy_worst_x_distance9+
-                  b_decoy_worst_x_distance9_s[sub_ns[i]])*distance9[i]+
-                  (b_decoy_worst_x_distance14+
-                  b_decoy_worst_x_distance14_s[sub_ns[i]])*distance14[i]+
+              b_decoy_worst_x_distance2*distance2[i]+
+              b_decoy_worst_x_distance5*distance5[i]+
+              b_decoy_worst_x_distance9*distance9[i]+
+              b_decoy_worst_x_distance14*distance14[i]+
               -(b_w*d_w[i]);
               
     // compute utility differences
@@ -234,32 +197,10 @@ model {
   b_decoy_worst_x_distance14 ~ normal(0,5);
   
   b_competitor_s_sigma ~ cauchy(0,2.5);
-  b_competitor_s_intxn_sigma ~ cauchy(0,2.5);
-  
-  b_competitor_best_x_distance2_s ~ normal(0, b_competitor_s_intxn_sigma);
-  b_competitor_best_x_distance5_s ~ normal(0, b_competitor_s_intxn_sigma);
-  b_competitor_best_x_distance9_s ~ normal(0, b_competitor_s_intxn_sigma);
-  b_competitor_best_x_distance14_s ~ normal(0, b_competitor_s_intxn_sigma);
-  
-  b_competitor_worst_x_distance2_s ~ normal(0, b_competitor_s_intxn_sigma);
-  b_competitor_worst_x_distance5_s ~ normal(0, b_competitor_s_intxn_sigma);
-  b_competitor_worst_x_distance9_s ~ normal(0, b_competitor_s_intxn_sigma);
-  b_competitor_worst_x_distance14_s ~ normal(0, b_competitor_s_intxn_sigma);
-  
-  b_decoy_best_x_distance2_s ~ normal(0, b_decoy_s_intxn_sigma);
-  b_decoy_best_x_distance5_s ~ normal(0, b_decoy_s_intxn_sigma);
-  b_decoy_best_x_distance9_s ~ normal(0, b_decoy_s_intxn_sigma);
-  b_decoy_best_x_distance14_s ~ normal(0, b_decoy_s_intxn_sigma);
-  
-  b_decoy_worst_x_distance2_s ~ normal(0, b_decoy_s_intxn_sigma);
-  b_decoy_worst_x_distance5_s ~ normal(0, b_decoy_s_intxn_sigma);
-  b_decoy_worst_x_distance9_s ~ normal(0, b_decoy_s_intxn_sigma);
-  b_decoy_worst_x_distance14_s ~ normal(0, b_decoy_s_intxn_sigma);
   
   b_competitor_best_s ~ normal(0, b_competitor_s_sigma); // 
   b_competitor_worst_s ~ normal(0, b_competitor_s_sigma); // 
   b_decoy_s_sigma ~ cauchy(0,2.5);
-  b_decoy_s_intxn_sigma ~ cauchy(0,2.5);
   
   b_decoy_best_s ~ normal(0, b_decoy_s_sigma); // 
   b_decoy_worst_s ~ normal(0, b_decoy_s_sigma); // 

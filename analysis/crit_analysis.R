@@ -247,6 +247,7 @@ ggplot(d_att_choice_mean_by_dist,aes(m_prop_worst,m_prop_best,col=option))+
   geom_errorbarh(aes(xmin=ci_lower_worst, xmax=ci_upper_worst), linewidth=1) +
   coord_fixed(ratio=1, xlim=c(0, 1), ylim=c(0, 1)) +  # Enforces equal scale by fixing the ratio
   # scale_x_continuous(breaks=c(.05,.75,1)) +  
+  ggsci::scale_color_startrek(name="")+
   # scale_y_continuous(breaks=c(0,.5,1))  +
   labs(x="p(worst)",y="p(best)",title = "data")+
   ggthemes::theme_few()+

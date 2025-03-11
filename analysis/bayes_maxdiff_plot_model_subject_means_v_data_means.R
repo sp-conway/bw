@@ -11,8 +11,7 @@ library(bayesplot)
 
 # general setup ====================================================================================
 # model settings
-which_model <- "maxdiff_separateU_1"
-debug_model <- F
+which_model <- "maxdiff_2"
 
 # paths
 model_dir <- here("analysis","bayes",which_model)
@@ -25,42 +24,49 @@ load(path(model_dir,glue("{which_model}_data_for_model.RData")))
 get_model_mean_preds <- function(preds, data, type){
   # browser()
   sub_ns_new <- unique(d_counts_clean$sub_n_new)
+  n_subs <- length(sub_ns_new)
   distances <- unique(d_counts_clean$distance)
   n_dists <- length(distances)
   mean_preds <- tibble()
-  i <- 1
-  for(d in distances){
-    print(d)
-    t_tmp <- apply(preds[,d_counts_clean$distance==d,1],1,mean)
-    c_tmp <- apply(preds[,d_counts_clean$distance==d,2],1,mean)
-    d_tmp <- apply(preds[,d_counts_clean$distance==d,3],1,mean)
-    mean_preds <- bind_rows(
-      mean_preds,
-      tibble(
-        type=type,
-        distance=d,
-        choice=c("t","c","d"),
-        m=c(mean(t_tmp),
-            mean(c_tmp),
-            mean(d_tmp)),
-        lower=c(hdi(t_tmp)[1],
-                    hdi(c_tmp)[1],
-                    hdi(d_tmp)[1]),
-        upper=c(hdi(t_tmp)[2],
-                    hdi(c_tmp)[2],
-                    hdi(d_tmp)[2])
+  for(s in 1:n_subs){
+    cat(type,"\n")
+    cat("subject",s,"/",n_subs,"\n")
+    
+    for(d in 1:n_dists){
+      # cat("d:",d,"\n")
+      t_tmp <- apply(preds[,d_counts_clean$distance==distances[d] & d_counts_clean$sub_n_new==sub_ns_new[s],1],1,mean)
+      c_tmp <- apply(preds[,d_counts_clean$distance==distances[d] & d_counts_clean$sub_n_new==sub_ns_new[s],2],1,mean)
+      d_tmp <- apply(preds[,d_counts_clean$distance==distances[d] & d_counts_clean$sub_n_new==sub_ns_new[s],3],1,mean)
+      mean_preds <- bind_rows(
+        mean_preds,
+        tibble(
+          type=type,
+          distance=distances[d],
+          sub_n_new=sub_ns_new[s],
+          choice=c("t","c","d"),
+          m=c(mean(t_tmp),
+              mean(c_tmp),
+              mean(d_tmp)),
+          lower=c(hdi(t_tmp)[1],
+                  hdi(c_tmp)[1],
+                  hdi(d_tmp)[1]),
+          upper=c(hdi(t_tmp)[2],
+                  hdi(c_tmp)[2],
+                  hdi(d_tmp)[2])
+        )
       )
-    )
-    i <- i+1
+    }
   }
   return(mean_preds)
 }
 
 preds_all <- bind_rows(get_model_mean_preds(p_best,d_counts_clean,"best"),
-                       get_model_mean_preds(p_worst,d_counts_clean,"worst")) %>%
-  pivot_wider(names_from = type,
-              values_from = c(m,lower,upper)) %>%
-  mutate(source="model")
+                       get_model_mean_preds(p_worst,d_counts_clean,"worst")) 
+preds_all$source <- "model"
+# %>%
+#   pivot_wider(names_from = type,
+#               values_from = c(m,lower,upper)) %>%
+#   mutate(source="model")
 
 analyze_data <- function(){
   # read in data, only include critical trials, recode bw cond to be more understandable
@@ -103,7 +109,8 @@ analyze_data <- function(){
       worst=="w" & set=="h"~"c",
       worst=="d"~"d"
     ))
-  d %>%
+  n_subs <- length(unique(d$sub_n))
+  dd <- d %>%
     pivot_longer(contains("att"),names_to = "type",values_to = "option") %>%
     mutate(type=str_remove(type,"_att")) %>%
     group_by(sub_n,distance,type,option) %>%
@@ -113,36 +120,57 @@ analyze_data <- function(){
     ungroup() %>%
     select(-n) %>%
     left_join(distinct(d,sub_n,bw_cond)) %>%
-    group_by(distance,type,option) %>%
-    summarise(m_prop=mean(prop),
-              n=n(),
-              se=sd(prop)/sqrt(n),
-              lower=m_prop-qt(.975,n-1)*se,
-              upper=m_prop-qt(.975,n-1)*se) %>%
-    ungroup() %>%
-    select(-c(n,se)) %>%
-    pivot_wider(names_from = type,
-                values_from = c(m_prop,lower,upper)) %>%
+    # group_by(sub_n,distance,type,option) %>%
+    # summarise(m_prop=mean(prop),
+    #           n=n(),
+    #           se=sd(prop)/sqrt(n),
+    #           lower=m_prop-qt(.975,n-1)*se,
+    #           upper=m_prop-qt(.975,n-1)*se) %>%
+    # ungroup() %>%
+    # select(-c(n,se)) %>%
+    # pivot_wider(names_from = type,
+    #             values_from = c(m_prop,lower,upper)) %>%
     rename(choice=option,
-           m_best=m_prop_best,
-           m_worst=m_prop_worst) %>%
+           m=prop) %>%
     mutate(source="data")
+  
+  # re-numbering subjects to be sequential
+  subs_key <- tibble(
+    sub_n = sort(unique(dd$sub_n)),
+    sub_n_new = seq(1,n_subs,1)
+  )
+  dd_clean <- dd %>%
+    left_join(subs_key) %>%
+    relocate(sub_n_new,.after=sub_n)
+  return(dd_clean)
 }
 
-data_preds_all <- analyze_data() %>%
-  bind_rows(preds_all)
+data <- analyze_data() %>%
+  select(-c(sub_n,bw_cond)) 
 
+# %>%
+#   bind_rows(preds_all) 
+
+data_preds_all <- bind_rows(data,
+            preds_all) %>%
+  pivot_wider(names_from = source,
+              values_from = c(m,lower,upper),
+              values_fill = 0)
 # 
-p <- data_preds_all %>%
-  ggplot(aes(m_worst,m_best,col=choice,shape=source))+
-  geom_point(alpha=.5)+
-  coord_fixed(xlim=c(0,.75),ylim=c(0,.75))+
-  scale_shape_manual(name="",
-                     values = c(1,4))+
-  facet_grid(distance~.)+
+data_preds_all %>%
+  ggplot(aes(m_data,m_model,col=choice))+
+  geom_point(alpha=.25)+
+  geom_abline(slope=1,intercept=0,linetype="dashed")+
+  geom_errorbar(aes(ymin=lower_model,ymax=upper_model),alpha=.25)+
+  coord_fixed(xlim=c(0,1),ylim=c(0,1))+
+  scale_x_continuous(breaks=c(0,.5,1))+
+  scale_y_continuous(breaks=c(0,.5,1))+
   ggsci::scale_color_startrek(name="")+
-  labs(x="mean p(worst)",y="mean p(best)")+
+  # scale_shape_manual(name="",
+  #                    values = c(1,4))+
+  facet_grid(distance~type)+
+  labs(x="data",y="model")+
   ggthemes::theme_few()+
   theme(text = element_text(size=19))
-p
-ggsave(p, filename = path(model_dir,glue("{which_model}_means_model_v_data.jpeg")),width=6,height=8)  
+
+ggsave(filename = path(model_dir,glue("{which_model}_subjectmeans_model_v_data.jpeg")),width=8,height=8)  
