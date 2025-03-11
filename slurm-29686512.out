@@ -1,0 +1,206 @@
+Loading r-rocker-ml-verse version 4.4.0+apptainer
+Loading apptainer version latest
+
+No apptainer cache directory found. To prevent apptainer from filling up your
+home directory, you can create a new directory at
+`/work/pi_<your_pi_name>/.apptainer/cache` and reload the module. 
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 11.8.0
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.
+   Use the NVIDIA Container Toolkit to start this container with GPU support; see
+   https://docs.nvidia.com/datacenter/cloud-native/ .
+
+here() starts at /work/pi_alc_umass_edu/spconway/scratch/bw
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: StanHeaders
+
+rstan version 2.32.6 (Stan version 2.32.2)
+
+For execution on a local, multicore CPU with excess RAM we recommend calling
+options(mc.cores = parallel::detectCores()).
+To avoid recompilation of unchanged Stan programs, we recommend calling
+rstan_options(auto_write = TRUE)
+For within-chain threading using `reduce_sum()` or `map_rect()` Stan functions,
+change `threads_per_chain` option:
+rstan_options(threads_per_chain = 1)
+
+
+Attaching package: ‘rstan’
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+This is bayesplot version 1.11.1
+- Online documentation and vignettes at mc-stan.org/bayesplot
+- bayesplot theme set to bayesplot::theme_default()
+   * Does _not_ affect other ggplot2 plots
+   * See ?bayesplot_theme_set for details on theme setting
+Rows: 107727 Columns: 26
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (3): bw_cond, effect, set
+dbl (23): sub_n, block_n, trial_n, distance, diag, h1, w1, h2, w2, h3, w3, a...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+`summarise()` has grouped output by 'sub_n', 'set', 'distance'. You can
+override using the `.groups` argument.
+Joining with `by = join_by(sub_n)`
+
+SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 1).
+
+SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 2).
+
+SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 3).
+
+SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 4).
+Chain 1: 
+Chain 1: Gradient evaluation took 0.011751 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 117.51 seconds.
+Chain 1: Adjust your expectations accordingly!
+Chain 1: 
+Chain 1: 
+Chain 1: Iteration:    1 / 3000 [  0%]  (Warmup)
+Chain 2: 
+Chain 2: Gradient evaluation took 0.012402 seconds
+Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 124.02 seconds.
+Chain 2: Adjust your expectations accordingly!
+Chain 2: 
+Chain 2: 
+Chain 2: Iteration:    1 / 3000 [  0%]  (Warmup)
+Chain 3: 
+Chain 3: Gradient evaluation took 0.021114 seconds
+Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 211.14 seconds.
+Chain 3: Adjust your expectations accordingly!
+Chain 3: 
+Chain 3: 
+Chain 4: 
+Chain 4: Gradient evaluation took 0.019036 seconds
+Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 190.36 seconds.
+Chain 4: Adjust your expectations accordingly!
+Chain 4: 
+Chain 4: 
+Chain 3: Iteration:    1 / 3000 [  0%]  (Warmup)
+Chain 4: Iteration:    1 / 3000 [  0%]  (Warmup)
+Chain 1: Iteration:  300 / 3000 [ 10%]  (Warmup)
+Chain 3: Iteration:  300 / 3000 [ 10%]  (Warmup)
+Chain 2: Iteration:  300 / 3000 [ 10%]  (Warmup)
+Chain 4: Iteration:  300 / 3000 [ 10%]  (Warmup)
+Chain 1: Iteration:  600 / 3000 [ 20%]  (Warmup)
+Chain 2: Iteration:  600 / 3000 [ 20%]  (Warmup)
+Chain 3: Iteration:  600 / 3000 [ 20%]  (Warmup)
+Chain 4: Iteration:  600 / 3000 [ 20%]  (Warmup)
+Chain 1: Iteration:  900 / 3000 [ 30%]  (Warmup)
+Chain 2: Iteration:  900 / 3000 [ 30%]  (Warmup)
+Chain 3: Iteration:  900 / 3000 [ 30%]  (Warmup)
+Chain 4: Iteration:  900 / 3000 [ 30%]  (Warmup)
+Chain 1: Iteration: 1200 / 3000 [ 40%]  (Warmup)
+Chain 2: Iteration: 1200 / 3000 [ 40%]  (Warmup)
+Chain 3: Iteration: 1200 / 3000 [ 40%]  (Warmup)
+Chain 4: Iteration: 1200 / 3000 [ 40%]  (Warmup)
+Chain 1: Iteration: 1500 / 3000 [ 50%]  (Warmup)
+Chain 1: Iteration: 1501 / 3000 [ 50%]  (Sampling)
+Chain 2: Iteration: 1500 / 3000 [ 50%]  (Warmup)
+Chain 2: Iteration: 1501 / 3000 [ 50%]  (Sampling)
+Chain 3: Iteration: 1500 / 3000 [ 50%]  (Warmup)
+Chain 3: Iteration: 1501 / 3000 [ 50%]  (Sampling)
+Chain 1: Iteration: 1800 / 3000 [ 60%]  (Sampling)
+Chain 4: Iteration: 1500 / 3000 [ 50%]  (Warmup)
+Chain 4: Iteration: 1501 / 3000 [ 50%]  (Sampling)
+Chain 2: Iteration: 1800 / 3000 [ 60%]  (Sampling)
+Chain 1: Iteration: 2100 / 3000 [ 70%]  (Sampling)
+Chain 3: Iteration: 1800 / 3000 [ 60%]  (Sampling)
+Chain 4: Iteration: 1800 / 3000 [ 60%]  (Sampling)
+Chain 2: Iteration: 2100 / 3000 [ 70%]  (Sampling)
+Chain 1: Iteration: 2400 / 3000 [ 80%]  (Sampling)
+Chain 3: Iteration: 2100 / 3000 [ 70%]  (Sampling)
+Chain 4: Iteration: 2100 / 3000 [ 70%]  (Sampling)
+Chain 2: Iteration: 2400 / 3000 [ 80%]  (Sampling)
+Chain 1: Iteration: 2700 / 3000 [ 90%]  (Sampling)
+Chain 3: Iteration: 2400 / 3000 [ 80%]  (Sampling)
+Chain 4: Iteration: 2400 / 3000 [ 80%]  (Sampling)
+Chain 2: Iteration: 2700 / 3000 [ 90%]  (Sampling)
+Chain 1: Iteration: 3000 / 3000 [100%]  (Sampling)
+Chain 1: 
+Chain 1:  Elapsed Time: 690.975 seconds (Warm-up)
+Chain 1:                539.177 seconds (Sampling)
+Chain 1:                1230.15 seconds (Total)
+Chain 1: 
+Chain 3: Iteration: 2700 / 3000 [ 90%]  (Sampling)
+Chain 4: Iteration: 2700 / 3000 [ 90%]  (Sampling)
+Chain 2: Iteration: 3000 / 3000 [100%]  (Sampling)
+Chain 2: 
+Chain 2:  Elapsed Time: 717.789 seconds (Warm-up)
+Chain 2:                565.653 seconds (Sampling)
+Chain 2:                1283.44 seconds (Total)
+Chain 2: 
+Chain 3: Iteration: 3000 / 3000 [100%]  (Sampling)
+Chain 3: 
+Chain 3:  Elapsed Time: 794.766 seconds (Warm-up)
+Chain 3:                580.119 seconds (Sampling)
+Chain 3:                1374.88 seconds (Total)
+Chain 3: 
+Chain 4: Iteration: 3000 / 3000 [100%]  (Sampling)
+Chain 4: 
+Chain 4:  Elapsed Time: 802.16 seconds (Warm-up)
+Chain 4:                592.546 seconds (Sampling)
+Chain 4:                1394.71 seconds (Total)
+Chain 4: 
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_0 FALSE
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_competitor FALSE
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_target FALSE
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_target_s_sigma FALSE
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_decoy FALSE
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_0 FALSE
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_target FALSE
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_competitor FALSE
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_decoy FALSE
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_0 FALSE
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_competitor FALSE
+In addition: Warning message:
+The following arguments were unrecognized and ignored: facet_args 
+Error in select_parameters(complete_pars = parameter_names(x), explicit = pars,  : 
+  Some 'pars' don't match parameter names: b_decoy FALSE

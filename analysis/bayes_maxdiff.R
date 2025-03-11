@@ -11,7 +11,7 @@ library(bayesplot)
 # general setup ====================================================================================
 # model settings
 which_model <- "maxdiff_separateU_1"
-debug_model <- T
+debug_model <- F
 
 # paths
 model_dir <- here("analysis","bayes",which_model)
