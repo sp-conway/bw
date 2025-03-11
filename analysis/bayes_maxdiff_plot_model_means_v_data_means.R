@@ -11,7 +11,7 @@ library(bayesplot)
 
 # general setup ====================================================================================
 # model settings
-which_model <- "maxdiff_2"
+which_model <- "maxdiff_separateU_1"
 debug_model <- F
 
 # paths
@@ -134,12 +134,12 @@ data_preds_all <- analyze_data() %>%
 
 # 
 data_preds_all %>%
-  ggplot(aes(m_worst,m_best,col=choice))+
+  ggplot(aes(m_worst,m_best,col=choice,shape=source))+
   geom_point(alpha=.5)+
   coord_fixed(xlim=c(0,.75),ylim=c(0,.75))+
-  # scale_shape_manual(name="",
-  #                    values = c(1,4))+
-  facet_grid(distance~source)+
+  scale_shape_manual(name="",
+                     values = c(1,4))+
+  facet_grid(distance~.)+
   labs(x="mean p(worst)",y="mean p(best)")+
   ggthemes::theme_few()+
   theme(text = element_text(size=19))

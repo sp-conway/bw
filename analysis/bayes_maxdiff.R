@@ -10,8 +10,8 @@ library(bayesplot)
 
 # general setup ====================================================================================
 # model settings
-which_model <- "maxdiff_separateU_1"
-debug_model <- F
+which_model <- "maxdiff_separateU_2"
+debug_model <- T
 
 # paths
 model_dir <- here("analysis","bayes",which_model)
@@ -90,6 +90,7 @@ N <- nrow(d_counts_clean)
 sub_ns <- d_counts_clean$sub_n_new
 t_w <- d_w <- if_else(d_counts_clean$set=="w", 1, 0)
 c_w <- if_else(d_counts_clean$set=="w", 0, 1)
+distance2 <- if_else(d_counts_clean$distance==2,1,0)
 distance5 <- if_else(d_counts_clean$distance==5,1,0)
 distance9 <- if_else(d_counts_clean$distance==9,1,0)
 distance14 <- if_else(d_counts_clean$distance==14,1,0)
@@ -105,6 +106,7 @@ stan_data <- list(N=N,
                   t_w=t_w,
                   d_w=d_w,
                   c_w=c_w,
+                  distance2=distance2,
                   distance5=distance5,
                   distance9=distance9,
                   distance14=distance14,
@@ -162,6 +164,36 @@ if(!file_exists(fit_file) | debug_model){
   try({
     p <- mcmc_trace(fit,c("b_competitor_best"))
     ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_best_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,regex_pars="competitor_best_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_best_x_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,regex_pars="competitor_worst_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_worst_x_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,regex_pars="intxn")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_inxtn_sigma_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,regex_pars="decoy_best_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_best_x_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,regex_pars="decoy_best_worst_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_worst_x_trace.jpeg")),width=5,height=4)
     rm(p)
   })
   
@@ -298,6 +330,37 @@ if(!file_exists(fit_file) | debug_model){
     ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_s_sigma_hist.jpeg")),width=5,height=4)
     rm(p)
   })
+  
+  try({
+    p <- mcmc_hist(fit,regex_pars="competitor_best_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_best_x_hist.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_hist(fit,regex_pars="competitor_worst_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_worst_x_hist.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_hist(fit,regex_pars="intxn")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_inxtn_sigma_hist.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_hist(fit,regex_pars="decoy_best_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_best_x_hist.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_hist(fit,regex_pars="decoy_best_worst_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_worst_x_hist.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
   try({
     p <- mcmc_intervals(fit,c("lp__"))
     p
@@ -372,6 +435,37 @@ if(!file_exists(fit_file) | debug_model){
     ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_s_sigma_intervals.jpeg")),width=5,height=4)
     rm(p)
   })
+  
+  try({
+    p <- mcmc_trace(fit,regex_pars="competitor_best_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_best_x_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,regex_pars="competitor_worst_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_competitor_worst_x_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,regex_pars="intxn")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_inxtn_sigma_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,regex_pars="decoy_best_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_best_x_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
+  try({
+    p <- mcmc_trace(fit,regex_pars="decoy_best_worst_x")
+    ggsave(p,filename=path(model_dir,glue("{which_model}_b_decoy_worst_x_trace.jpeg")),width=5,height=4)
+    rm(p)
+  })
+  
   # get model predictions ================================================================================================================================================
   p_best <- extract(fit, pars="p_best")$p_best
   p_worst <- extract(fit, pars="p_worst")$p_worst

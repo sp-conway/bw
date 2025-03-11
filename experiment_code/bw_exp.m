@@ -598,7 +598,7 @@ function bw_exp
         r3_y = round(rectangle_box_c(2)+(.5*rect_dist_px)+.5*h3_tmp+r3_jit);           
 	
 
-        % RECRTANGLE LABELS
+        % RECTANGLE LABELS
         rtxt_y = max([round(r1_y+h1_tmp)
                       round(r2_y+h2_tmp)
                       round(r3_y+h3_tmp)])+round(.05*rectangle_box_h);
