@@ -16,6 +16,12 @@ d %>%
   group_by(bw_cond) %>%
   summarise(n=n())
 
+d %>%
+  group_by(sub_n) %>%
+  summarise(n=n()) %>%
+  ungroup() %>%
+  arrange(desc(n))
+
 length(unique(d$sub_n))
 # prop correct ========================================================
 # subject level prop correct
