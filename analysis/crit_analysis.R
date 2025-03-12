@@ -15,6 +15,8 @@ d %>%
   distinct(sub_n,bw_cond) %>%
   group_by(bw_cond) %>%
   summarise(n=n())
+
+length(unique(d$sub_n))
 # prop correct ========================================================
 # subject level prop correct
 d_corr_props <- d %>%

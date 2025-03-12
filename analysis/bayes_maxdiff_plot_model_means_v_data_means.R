@@ -1,5 +1,5 @@
 # pre-setup ====================================================================================
-rm(list=ls()); gc()
+rm(list=ls())
 library(here)
 library(tidyverse)
 library(glue)
@@ -11,8 +11,7 @@ library(bayesplot)
 
 # general setup ====================================================================================
 # model settings
-which_model <- "maxdiff_separateU_1"
-debug_model <- F
+which_model <- "maxdiff_separateU_2"
 
 # paths
 model_dir <- here("analysis","bayes",which_model)
