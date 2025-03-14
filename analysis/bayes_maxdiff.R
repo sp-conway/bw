@@ -10,7 +10,7 @@ library(bayesplot)
 
 # general setup ====================================================================================
 # model settings
-which_model <- "maxdiff_separateU_2"
+which_model <- "maxdiff_separateU_3"
 debug_model <- F
 
 # paths
