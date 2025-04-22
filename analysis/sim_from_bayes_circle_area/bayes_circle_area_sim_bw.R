@@ -77,10 +77,10 @@ for(which_model in c("sigma_constant","sigma_constant_target_effect","sigma_cons
   
   model_sims_wide %>%
     ggplot(aes(m_prop_worst,m_prop_best,col=option,label=str_sub(option,1,1)))+
-    geom_text(size=3,alpha=.8)+
-    scale_x_continuous(breaks=c(0,.5,1))+
-    scale_y_continuous(breaks=c(0,.5,1))+
-    coord_fixed(xlim=c(0,1),ylim=c(0,1))+
+    geom_text(size=6,alpha=.8)+
+    # scale_x_continuous(breaks=c(25,.5,1))+
+    # scale_y_continuous(breaks=c(0,.5,1))+
+    coord_fixed(xlim=c(.2,.5),ylim=c(.2,.5))+
     ggsci::scale_color_startrek(name="stimulus")+
     labs(x="p(worst)",y="p(best)")+
     facet_grid(distance~.)+
@@ -90,4 +90,10 @@ for(which_model in c("sigma_constant","sigma_constant_target_effect","sigma_cons
   ggsave(filename=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_{which_model}_{outl}.jpeg")),width=6,height=8)
   write_csv(model_sims_wide, file=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_{which_model}_{outl}.csv")))
   
+  model_sims_wide %>%
+    filter(option!="d") %>%
+    select(-m_prop_best) %>%
+    pivot_wider(names_from = option,
+                values_from = m_prop_worst) %>%
+    mutate(diff=c-t)
 }

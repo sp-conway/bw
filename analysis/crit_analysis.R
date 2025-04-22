@@ -10,6 +10,9 @@ d <- here("data","cleaned","bw_all.csv") %>%
   mutate(bw_cond=recode(bw_cond,"bw"="best-worst","wb"="worst-best")) %>%
   filter(str_detect(effect,"attraction"))
 
+# n block
+unique(d$block_n)
+max(d$trial_n)
 # quick check of subject counts
 d %>%
   distinct(sub_n,bw_cond) %>%
@@ -250,18 +253,16 @@ d_att_choice_mean_by_dist <- compute_mean_choice_props(d_att_choice,groups=vars(
 
 ggplot(d_att_choice_mean_by_dist,aes(m_prop_worst,m_prop_best,col=option))+
   # geom_text(aes(label=option), col="darkblue",alpha=.5, size=3)+
-  geom_point(shape=".")+
-  geom_errorbar(aes(ymin=ci_lower_best, ymax=ci_upper_best)) +
-  geom_errorbarh(aes(xmin=ci_lower_worst, xmax=ci_upper_worst), linewidth=1) +
-  coord_fixed(ratio=1, xlim=c(0, 1), ylim=c(0, 1)) +  # Enforces equal scale by fixing the ratio
-  # scale_x_continuous(breaks=c(.05,.75,1)) +  
-  ggsci::scale_color_startrek(name="")+
-  # scale_y_continuous(breaks=c(0,.5,1))  +
-  labs(x="p(worst)",y="p(best)",title = "data")+
+  geom_point(alpha=.5)+
+  coord_fixed(xlim=c(0,1),ylim=c(0,1))+
+  scale_x_continuous(breaks=c(0,.5,1),labels = c("0",".5","1"))+
+  scale_y_continuous(breaks=c(0,.5,1),labels = c("0",".5","1"))+
+  facet_grid(distance~.)+
+  labs(x="p(worst)",y="p(best)")+
+  ggsci::scale_color_startrek()+
   ggthemes::theme_few()+
-  facet_grid(as.factor(as.numeric(distance))~.)+
-  theme(text = element_text(size=14),plot.title = element_text(hjust=0.5))
-ggsave(filename = here("analysis","plots","crit_mean_props_by_dist.jpeg"),width=6,height=7)
+  theme(text=element_text(size=18))
+ggsave(filename = here("analysis","plots","crit_mean_props_by_dist.jpeg"),width=4,height=6)
 
 
 
@@ -281,6 +282,7 @@ ggplot(d_att_choice_mean_by_dist_diag,aes(m_prop_worst,m_prop_best,col=option))+
   theme(text = element_text(size=14),plot.title = element_text(hjust=0.5))
 ggsave(filename = here("analysis","plots","crit_mean_props_by_dist_diag.jpeg"),width=6,height=7)
 
+d
 # model predictions (all 3 variants)==============================================================================
 outl <- "no_outliers"
 
@@ -302,16 +304,144 @@ for(which_model in c("sigma_constant","sigma_constant_target_effect","sigma_cons
   # plotting
   # plot labels, color labels by source
   model_data_by_dist %>%
-    ggplot(aes(m_prop_worst,m_prop_best,col=source))+
-    geom_text(aes(label=option),alpha=.9, size=3)+
+    ggplot(aes(m_prop_worst,m_prop_best,shape=source,col=option))+
+    geom_point(alpha=.5, size=1)+
     coord_fixed(xlim=c(0,1),ylim=c(0,1))+
     scale_x_continuous(breaks=c(0,1,1)) +  
     scale_y_continuous(breaks=c(0,1,1))  +
     labs(x="p(worst)",y="p(best)",title = "data")+
-    ggsci::scale_color_cosmic(name="")+
+    ggsci::scale_color_startrek()+
+    scale_shape_manual(values=c(1,4),name="")+
     ggthemes::theme_few()+
     facet_grid(as.factor(as.numeric(distance))~.)+
     theme(text = element_text(size=14),plot.title = element_text(hjust=0.5))+
     theme(legend.key = element_rect(fill = "white"))
   ggsave(filename = here("analysis","plots",glue("crit_mean_props_by_dist_compare_to_model_{which_model}_{outl}.jpeg")),width=4,height=5)
 }
+
+# indiv ppts ================================================================================================
+d_att_choice %>%
+  select(-c(diag,h1,w1,h2,w2,h3,w3,a1,a2,a3,rt_best,rt_worst,choice_best,choice_worst,min,best,worst)) %>%
+  pivot_longer(contains("att"),names_to = "type",values_to = "option") %>%
+  mutate(type=str_remove(type,"_att")) %>%
+  group_by(sub_n,distance,type,option) %>%
+  summarise(n=n()) %>%
+  group_by(sub_n,distance,type) %>%
+  mutate(prop=n/sum(n)) %>%
+  ungroup() %>%
+  select(-n) %>%
+  pivot_wider(names_from = type,values_from = prop, values_fill = 0) %>%
+  ggplot(aes(worst,best,col=option))+
+  geom_point(shape=".")+
+  coord_fixed(ratio=1, xlim=c(0, 1), ylim=c(0, 1)) +  
+  ggsci::scale_color_startrek(name="")+
+  labs(x="p(worst)",y="p(best)")+
+  ggthemes::theme_few()+
+  facet_grid(as.factor(as.numeric(distance))~.)+
+  theme(text = element_text(size=16),plot.title = element_text(hjust=0.5))
+ggsave(filename=here("analysis","plots","crit_props_by_dist_indiv.jpeg"),width=5,height=6)
+
+# hawkins analysis - marginal choice props ========================================================================
+d_att_choice_collapsed <- d_att_choice %>%
+  mutate(best=case_when(
+    best=="d" & set=="w"~glue("dw_{distance}_{diag}"),
+    best=="d" & set=="h"~glue("dh_{distance}_{diag}"),
+    best=="w" ~ glue("w_{diag}"),
+    best=="h" ~ glue("h_{diag}"),
+  ),
+  worst=case_when(
+    worst=="d" & set=="w"~glue("dw_{distance}_{diag}"),
+    worst=="d" & set=="h"~glue("dh_{distance}_{diag}"),
+    worst=="w" ~ glue("w_{diag}"),
+    worst=="h" ~ glue("h_{diag}")
+  )) %>%
+  select(-c(best_att,worst_att)) %>%
+  pivot_longer(c(best,worst),
+               names_to = "type",
+               values_to="option")
+
+d_att_choice_collapsed_no_d <- d_att_choice_collapsed %>%
+  filter(str_detect(option,"d",negate=T)) %>%
+  group_by(sub_n,diag,option,type) %>%
+  summarise(N=n()) %>%
+  ungroup() %>%
+  group_by(sub_n,diag,type) %>%
+  mutate(prop=N/sum(N)) %>%
+  group_by(option,type) %>%
+  summarise(m_prop=mean(prop),
+            n=n(),
+            se=sd(prop)/sqrt(n),
+            ci_lower=m_prop-qt(.975,n-1)*se,
+            ci_upper=m_prop+qt(.975,n-1)*se) %>%
+  ungroup() %>%
+  select(-c(n,se)) %>%
+  pivot_wider(names_from = type,
+              values_from = c(m_prop,ci_lower,ci_upper))
+
+d_att_choice_collapsed_with_d <- d_att_choice_collapsed %>%
+  filter(str_detect(option,"d")) %>%
+  group_by(sub_n,distance,diag,option,type) %>%
+  summarise(N=n()) %>%
+  ungroup() %>%
+  group_by(sub_n,distance,diag,type) %>%
+  mutate(prop=N/sum(N)) %>%
+  group_by(option,type) %>%
+  summarise(m_prop=mean(prop),
+            n=n(),
+            se=sd(prop)/sqrt(n),
+            ci_lower=m_prop-qt(.975,n-1)*se,
+            ci_upper=m_prop+qt(.975,n-1)*se) %>%
+  ungroup() %>%
+  select(-c(n,se)) %>%
+  pivot_wider(names_from = type,
+              values_from = c(m_prop,ci_lower,ci_upper))
+d_att_choice_collapsed_means_all <- bind_rows(d_att_choice_collapsed_with_d,
+                                              d_att_choice_collapsed_no_d)
+
+d_att_choice_collapsed_means_all %>%
+  ggplot(aes(m_prop_worst,m_prop_best))+
+  # geom_point(col="lightblue",alpha=.5)+
+  geom_errorbar(aes(ymin=ci_lower_best,ymax=ci_upper_best),alpha=.65,col="lightblue")+
+  geom_errorbarh(aes(xmin=ci_lower_worst,xmax=ci_upper_worst),alpha=.65,col="lightblue")+
+  coord_fixed(xlim = c(.3,.8),ylim = c(.3,.8))+
+  labs(x="mean p(worst)",y="mean p(best)")+
+  ggthemes::theme_few()+
+  theme(text=element_text(size=16))
+ggsave(filename=here("analysis","plots","crit_mean_props_marginal.jpeg"),width=5,height=5)  
+
+# compute choice props by set, but plot in terms of h/w =========================================
+d_mchoice_by_set_dist <- d_att_choice %>%
+  mutate(set=case_when(
+    set=="w"~"h-w-dw",
+    set=="h"~"h-w-dh"
+  )) %>%
+  pivot_longer(c(best,worst),names_to = "type", values_to = "choice") %>%
+  group_by(sub_n,distance,set,type,choice) %>%
+  summarise(N=n()) %>%
+  ungroup() %>%
+  group_by(sub_n,distance,set,type) %>%
+  mutate(prop=N/sum(N)) %>%
+  group_by(distance,set,type,choice) %>%
+  summarise(m=mean(prop),
+            s=sd(prop),
+            se=s/sqrt(n()),
+            ci_lower=m-qt(.975,n()-1,lower.tail = T)*se,
+            ci_upper=m+qt(.975,n()-1,lower.tail = T)*se) %>%
+  ungroup() %>%
+  select(-c(s,se)) %>%
+  pivot_wider(names_from = type,
+              values_from = c(m,ci_lower,ci_upper))
+#Our transformation function
+d_mchoice_by_set_dist %>%
+  ggplot(aes(m_worst,m_best,col=choice,shape=set))+
+  geom_point(alpha=.5)+
+  coord_fixed(xlim=c(0,1),ylim=c(0,1))+
+  facet_grid(distance~.)+
+  labs(x="p(worst)",y="p(best)")+
+  ggsci::scale_color_startrek()+
+  scale_x_continuous(breaks=c(0,.5,1),labels = c("0",".5","1"))+
+  scale_y_continuous(breaks=c(0,.5,1),labels = c("0",".5","1"))+
+  ggthemes::theme_few()+
+  theme(text=element_text(size=18))
+ggsave(filename = here("analysis","plots","crit_mean_choice_by_set_dist_labelHW.jpeg"),
+       width=4,height=6)

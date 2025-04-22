@@ -108,7 +108,9 @@ subs_keep <- unique(d_corr_props_pass_catch$sub_n)
 # FINAL CLEANED DATA ==========================================================================================
 d_all_cleaned <- filter(d_all, sub_n %in% subs_keep)
 
+cat("\n=====\ninitial count",length(unique(d_all$sub_n)),"\n=====\n",sep=" ")
 cat("\n=====\nremoved",length(unique(d_all$sub_n))-length(subs_keep),"participants for failing catch trials\n=====\n",sep=" ")
+cat("\n=====\nfinal count",length(subs_keep),"\n=====\n",sep=" ")
 
 # FINAL SUBJECT COUNT==========================================================================================
 d_all_cleaned %>%

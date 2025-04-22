@@ -7,4 +7,8 @@
 *p_worst.RData
 *rep.RData
 *p_rank.RData
+<<<<<<< HEAD
 logit_probit.R
+=======
+*slurm
+>>>>>>> refs/remotes/origin/main

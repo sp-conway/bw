@@ -1,4 +1,3 @@
-# analyzing catch trials 
 rm(list=ls())
 library(here)
 library(tidyverse)
@@ -8,7 +7,7 @@ library(fs)
 d <- here("data","cleaned","bw_all.csv") %>%
   read_csv() %>%
   mutate(bw_cond=recode(bw_cond,"bw"="best-worst","wb"="worst-best")) %>%
-  filter(str_detect(effect,"catch"))
+  filter(str_detect(effect,"filler"))
 
 # prop correct ================================================================================
 prop_corr_by_cond_sub <- d %>%
@@ -39,10 +38,9 @@ m_prop_corr_by_cond %>%
   geom_errorbar(aes(ymin=ci_lower,ymax=ci_upper),position=position_dodge(.9),width=.25)+
   ggsci::scale_fill_d3(name="condition",labels=c("best-worst","worst-best"))+
   scale_x_discrete(labels=c("prop_best"="best correct","prop_worst"="worst correct","prop_both"="both correct"))+
-  facet_grid(effect~.)+
   labs(x="which choice",y="mean proportion")+ 
   ggthemes::theme_few()
-ggsave(filename=here("analysis","plots","catch_prop_correct_means.jpeg"),width=6,height=4)
+ggsave(filename=here("analysis","plots","filler_prop_correct_means.jpeg"),width=6,height=4)
 
 # mean prop correct collapsed across condition 
 options(pillar.sigfig=5)
@@ -67,4 +65,4 @@ d %>%
   theme(legend.position="inside",
         legend.key.size = unit(5,units = "mm"),
         legend.position.inside = c(.38,.9))
-ggsave(filename=here("analysis","plots","catch_rt_hists.jpeg"),width=6,height=5)
+ggsave(filename=here("analysis","plots","filler_rt_hists.jpeg"),width=6,height=5)

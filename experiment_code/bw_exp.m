@@ -602,7 +602,6 @@ function bw_exp
         rtxt_y = max([round(r1_y+h1_tmp)
                       round(r2_y+h2_tmp)
                       round(r3_y+h3_tmp)])+round(.05*rectangle_box_h);
-            RDCL_DrawText(s_middle_x, s_rect(4)*.25, "Click on the rectangle with the LARGEST area", 'Col', black);
 
         % Rectangle 1 text center
         r1_txt_x = r1_x;
