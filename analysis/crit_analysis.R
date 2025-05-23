@@ -282,64 +282,6 @@ ggplot(d_att_choice_mean_by_dist_diag,aes(m_prop_worst,m_prop_best,col=option))+
   theme(text = element_text(size=14),plot.title = element_text(hjust=0.5))
 ggsave(filename = here("analysis","plots","crit_mean_props_by_dist_diag.jpeg"),width=6,height=7)
 
-d
-# model predictions (all 3 variants)==============================================================================
-outl <- "no_outliers"
-
-# sigma constant - no target/comp effect
-# sigma constant target effect and sigma constant comp effect are equivalent
-# just which one is reference gets varied
-
-for(which_model in c("sigma_constant","sigma_constant_target_effect","sigma_constant_comp_effect")){
-  # get predictions, filter out horizontal bc only had triangle display here
-  model_preds <-here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_{which_model}_{outl}.csv")) %>%
-    read_csv() %>%
-    filter(disp_cond=="triangle")
-  
-  # bind with data
-  model_data_by_dist <- model_preds %>%
-    mutate(source="model") %>% 
-    bind_rows(mutate(d_att_choice_mean_by_dist,source="data"))
-  
-  # plotting
-  # plot labels, color labels by source
-  model_data_by_dist %>%
-    ggplot(aes(m_prop_worst,m_prop_best,shape=source,col=option))+
-    geom_point(alpha=.5, size=1)+
-    coord_fixed(xlim=c(0,1),ylim=c(0,1))+
-    scale_x_continuous(breaks=c(0,1,1)) +  
-    scale_y_continuous(breaks=c(0,1,1))  +
-    labs(x="p(worst)",y="p(best)",title = "data")+
-    ggsci::scale_color_startrek()+
-    scale_shape_manual(values=c(1,4),name="")+
-    ggthemes::theme_few()+
-    facet_grid(as.factor(as.numeric(distance))~.)+
-    theme(text = element_text(size=14),plot.title = element_text(hjust=0.5))+
-    theme(legend.key = element_rect(fill = "white"))
-  ggsave(filename = here("analysis","plots",glue("crit_mean_props_by_dist_compare_to_model_{which_model}_{outl}.jpeg")),width=4,height=5)
-}
-
-# indiv ppts ================================================================================================
-d_att_choice %>%
-  select(-c(diag,h1,w1,h2,w2,h3,w3,a1,a2,a3,rt_best,rt_worst,choice_best,choice_worst,min,best,worst)) %>%
-  pivot_longer(contains("att"),names_to = "type",values_to = "option") %>%
-  mutate(type=str_remove(type,"_att")) %>%
-  group_by(sub_n,distance,type,option) %>%
-  summarise(n=n()) %>%
-  group_by(sub_n,distance,type) %>%
-  mutate(prop=n/sum(n)) %>%
-  ungroup() %>%
-  select(-n) %>%
-  pivot_wider(names_from = type,values_from = prop, values_fill = 0) %>%
-  ggplot(aes(worst,best,col=option))+
-  geom_point(shape=".")+
-  coord_fixed(ratio=1, xlim=c(0, 1), ylim=c(0, 1)) +  
-  ggsci::scale_color_startrek(name="")+
-  labs(x="p(worst)",y="p(best)")+
-  ggthemes::theme_few()+
-  facet_grid(as.factor(as.numeric(distance))~.)+
-  theme(text = element_text(size=16),plot.title = element_text(hjust=0.5))
-ggsave(filename=here("analysis","plots","crit_props_by_dist_indiv.jpeg"),width=5,height=6)
 
 # hawkins analysis - marginal choice props ========================================================================
 d_att_choice_collapsed <- d_att_choice %>%
