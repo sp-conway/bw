@@ -1,3 +1,5 @@
+# running Bayesian dirichlet-multinomial model of best-worst choice
+
 # pre-setup ====================================================================================
 rm(list=ls())
 library(here)
@@ -10,7 +12,7 @@ library(bayesplot)
 
 # general setup ====================================================================================
 # model settings
-which_model <- "bayes_choice_dm_hier_1"
+which_model <- "dm_hier_1"
 debug_model <- F
 
 # paths
@@ -101,16 +103,10 @@ for(s in sub_ns){
     }
   }
 }
-stan_data <- list(N=N,
-                  n_subs=n_subs,
-                  sub_ns=sub_ns,
-                  t_w=t_w,
-                  d_w=d_w,
-                  c_w=c_w,
-                  distance2=distance2,
-                  distance5=distance5,
-                  distance9=distance9,
-                  distance14=distance14,
+stan_data <- list(S=n_subs,
+                  D=length(distance),
+                  O=length(set),
+                  K=6,
                   counts=counts)
 
 # compile model and sample from posterior =================================================================================
@@ -130,93 +126,10 @@ if(!file_exists(fit_file) | debug_model){
     save(diagnostics, file=path(model_dir,glue("{which_model}_diagnostics.RData")))
   }
   
-  params <- c("lp__",
-              "b_0",
-              "b_competitor",
-              "b_decoy",
-              "b_competitor_best",
-              "b_decoy_best",
-              "b_competitor_worst",
-              "b_decoy_worst",
-              "b_competitor_best_x_distance2",
-              "b_competitor_best_x_distance5",
-              "b_competitor_best_x_distance9",
-              "b_competitor_best_x_distance14",
-              "b_competitor_worst_x_distance2",
-              "b_competitor_worst_x_distance5",
-              "b_competitor_worst_x_distance9",
-              "b_competitor_worst_x_distance14",
-              "b_decoy_best_x_distance2",
-              "b_decoy_best_x_distance5",
-              "b_decoy_best_x_distance9",
-              "b_decoy_best_x_distance14",
-              "b_decoy_worst_x_distance2",
-              "b_decoy_worst_x_distance5",
-              "b_decoy_worst_x_distance9",
-              "b_decoy_worst_x_distance14")
-  for(par in params){
-    try({
-      p <- mcmc_trace(fit,par)
-      p
-      ggsave(p, filename=path(model_dir,glue("{which_model}_{par}_trace.jpeg")),width=5,height=4)
-      rm(p)
-    })
-    try({
-      p <- mcmc_hist(fit,par)
-      p
-      ggsave(p, filename=path(model_dir,glue("{which_model}_{par}_hist.jpeg")),width=5,height=4)
-      rm(p)
-    })
-    try({
-      p <- mcmc_intervals(fit,par,prob=.95,prob_outer=1,point_est="mean")
-      p
-      ggsave(p, filename=path(model_dir,glue("{which_model}_{par}_intervals.jpeg")),width=5,height=4)
-      rm(p)
-    })
-    try({
-      p <- mcmc_dens(fit,par)
-      p
-      ggsave(p, filename=path(model_dir,glue("{which_model}_{par}_dens.jpeg")),width=5,height=4)
-      rm(p)
-    })
-  }
-  
-  try({
-    p <- mcmc_trace(fit,regex_pars = "sigma")
-    p
-    ggsave(p, filename=path(model_dir,glue("{which_model}_sigma_trace.jpeg")),width=5,height=4)
-    rm(p)
-  })
-  
-  try({
-    p <- mcmc_hist(fit,regex_pars = "sigma")
-    p
-    ggsave(p, filename=path(model_dir,glue("{which_model}_sigma_hist.jpeg")),width=5,height=4)
-    rm(p)
-  })
-  
-  try({
-    p <- mcmc_trace(fit,c("b_distance_2",
-                          "b_distance_9",
-                          "b_distance_14"))
-    p
-    ggsave(p, filename=path(model_dir,glue("{which_model}_distance_trace.jpeg")),width=5,height=4)
-    rm(p)
-  })
-  
-  try({
-    p <- mcmc_hist(fit,c("b_distance_2",
-                         "b_distance_9",
-                         "b_distance_14"))
-    p
-    ggsave(p, filename=path(model_dir,glue("{which_model}_distance_hist.jpeg")),width=5,height=4)
-    rm(p)
-  })
-  
   # get model predictions ================================================================================================================================================
   p_best <- extract(fit, pars="p_best")$p_best
   p_worst <- extract(fit, pars="p_worst")$p_worst
-  counts_rank_rep <- extract(fit, pars="counts_rank_rep")$counts_rank_rep
+  counts_rank_rep <- extract(fit, pars="counts_rank_rep")$counts_rank_rep # ppc 
   
   save(p_best,file=path(model_dir,glue("{which_model}_p_best.RData")))
   save(p_worst,file=path(model_dir,glue("{which_model}_p_worst.RData")))

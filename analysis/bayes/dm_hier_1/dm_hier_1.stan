@@ -9,7 +9,7 @@ data {
 parameters {
   array[S,D,O] simplex[K] theta;
   array[D,O] simplex[K] alpha_prob;
-  array[D,O] real concentration; 
+  array[D,O] real<lower=0> concentration; 
 }
 
 transformed parameters{
