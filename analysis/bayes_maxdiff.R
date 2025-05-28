@@ -10,7 +10,7 @@ library(bayesplot)
 
 # general setup ====================================================================================
 # model settings
-which_model <- "maxdiff_separateU_3"
+which_model <- "maxdiff_1"
 debug_model <- F
 
 # paths
@@ -136,23 +136,7 @@ if(!file_exists(fit_file) | debug_model){
               "b_competitor_best",
               "b_decoy_best",
               "b_competitor_worst",
-              "b_decoy_worst",
-              "b_competitor_best_x_distance2",
-              "b_competitor_best_x_distance5",
-              "b_competitor_best_x_distance9",
-              "b_competitor_best_x_distance14",
-              "b_competitor_worst_x_distance2",
-              "b_competitor_worst_x_distance5",
-              "b_competitor_worst_x_distance9",
-              "b_competitor_worst_x_distance14",
-              "b_decoy_best_x_distance2",
-              "b_decoy_best_x_distance5",
-              "b_decoy_best_x_distance9",
-              "b_decoy_best_x_distance14",
-              "b_decoy_worst_x_distance2",
-              "b_decoy_worst_x_distance5",
-              "b_decoy_worst_x_distance9",
-              "b_decoy_worst_x_distance14")
+              "b_decoy_worst")
   for(par in params){
     try({
       p <- mcmc_trace(fit,par)

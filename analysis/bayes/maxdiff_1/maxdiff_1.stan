@@ -18,9 +18,10 @@ parameters {
   real b_distance14; // effect of distance = 14
   real b_competitor; // effect of competitor (target is reference)
   real b_decoy; // effect of decoy (target is reference)
-  real b_0; // global intercept
-  vector[n_subs] b_0_s; // 
-  real<lower=0> b_0_s_sigma;
+  real<lower=0> b_competitor_s_sigma;
+  real<lower=0> b_decoy_s_sigma;
+  vector[n_subs] b_competitor_s; // 
+  vector[n_subs] b_decoy_s; // 
 }
 
 transformed parameters{
@@ -31,27 +32,23 @@ transformed parameters{
   for(i in 1:N){
     
     // Utility of target option
-    U[i,1] = b_0 +  
-              b_0_s[sub_ns[i]]+
-              b_w*t_w[i] + 
+    U[i,1] = b_w*t_w[i] + 
               b_distance5*distance5[i] +
               b_distance9*distance9[i] + 
               b_distance14*distance14[i];
               
     // Utility of competitor option          
-    U[i,2] = b_0 + 
-              b_0_s[sub_ns[i]]+
+    U[i,2] = b_competitor+
+              b_competitor_s[sub_ns[i]]+
               b_w*c_w[i] + 
               b_distance5*distance5[i] +
               b_distance9*distance9[i] + 
-              b_distance14*distance14[i] +
-              b_competitor;
+              b_distance14*distance14[i];
     
     // Utility of decoy option
-    U[i,3] = b_0 + 
-              b_0_s[sub_ns[i]]+
-              b_w*d_w[i] + 
-              b_decoy;
+    U[i,3] = b_decoy+
+              b_decoy_s[sub_ns[i]]+
+              b_w*d_w[i];
               
     // compute utility differences
     for(j in 1:3){
@@ -79,7 +76,7 @@ transformed parameters{
     for(j in 1:3){
       for(k in 1:3){
         if(j==k){
-          p[i][j,k]=0;
+        p[i][j,k]=0;
         }else{
           p[i][j,k]=exp(Ud[i][j,k])/sum_exp_Ud;
         }
@@ -88,12 +85,13 @@ transformed parameters{
     
     
     // flatten probabilities and assign CORRECTLY to rankings
-    p_rank[i, 1] = p[i][1, 2]; 
-    p_rank[i, 2] = p[i][1, 3];
-    p_rank[i, 3] = p[i][2, 1]; 
-    p_rank[i, 4] = p[i][2, 3]; 
-    p_rank[i, 5] = p[i][3, 1];
-    p_rank[i, 6] = p[i][3, 2];
+    // IN ORDER OF TCD, TDC, CTD, CDT, DTC, DCT
+    p_rank[i, 1] = p[i][1, 3]; 
+    p_rank[i, 2] = p[i][1, 2];
+    p_rank[i, 3] = p[i][2, 3]; 
+    p_rank[i, 4] = p[i][2, 1]; 
+    p_rank[i, 5] = p[i][3, 2];
+    p_rank[i, 6] = p[i][3, 1];
   }
 }
 
@@ -104,9 +102,10 @@ model {
   b_distance14 ~ normal(0,5); // effect of distance = 14
   b_competitor ~ normal(0,5); // effect of competitor (target is reference)
   b_decoy ~ normal(0,5); // effect of decoy (target is reference)
-  b_0 ~ normal(0,5); // global intercept
-  b_0_s_sigma ~ cauchy(0,0.5);
-  b_0_s ~ normal(0, b_0_s_sigma); // 
+  b_competitor_s_sigma ~ cauchy(0,2.5);
+  b_competitor_s ~ normal(0, b_competitor_s_sigma); // 
+  b_decoy_s_sigma ~ cauchy(0,2.5);
+  b_decoy_s ~ normal(0, b_decoy_s_sigma); // 
   for(m in 1:N){
    counts[m,]~ multinomial(to_vector(p_rank[m, ]));
   }
@@ -118,14 +117,16 @@ generated quantities {
   matrix[N,3] p_best;
   matrix[N,3] p_worst;
   array[N,6] int counts_rank_rep;
+  
+  // counts of all rankings, IN ORDER OF 1)TCD, 2)TDC, 3)CTD, 4)CDT, 5)DTC, 6)DCT
   for(m in 1:N){
     p_best[m,1]=p_rank[m,1]+p_rank[m,2];
     p_best[m,2]=p_rank[m,3]+p_rank[m,4];
     p_best[m,3]=p_rank[m,5]+p_rank[m,6];
-    
-    p_worst[m,1]=p_rank[m,3]+p_rank[m,5]; 
-    p_worst[m,2]=p_rank[m,1]+p_rank[m,6];
-    p_worst[m,3]=p_rank[m,2]+p_rank[m,4];
+
+    p_worst[m,1]=p_rank[m,4]+p_rank[m,6]; 
+    p_worst[m,2]=p_rank[m,2]+p_rank[m,5];
+    p_worst[m,3]=p_rank[m,1]+p_rank[m,3];
     
     counts_rank_rep[m,]=multinomial_rng(to_vector(p_rank[m, ]), sum(counts[m,]));
   }

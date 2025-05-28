@@ -11,7 +11,7 @@ library(bayesplot)
 
 # general setup ====================================================================================
 
-for(which_model in c("maxdiff_1","maxdiff_2","maxdiff_separateU_1","maxdiff_separateU_2")){
+for(which_model in c("maxdiff_1")){
   model_dir <- here("analysis","bayes",which_model)
   load(path(model_dir,glue("{which_model}_fit.RData")))
   p_rank <- extract(fit,"p_rank")$p_rank
