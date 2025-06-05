@@ -22,7 +22,6 @@ load(path(model_dir,glue("{which_model}_p_worst.RData")))
 load(path(model_dir,glue("{which_model}_data_for_model.RData")))
 
 get_model_mean_preds <- function(preds, data, type){
-  # browser()
   sub_ns_new <- unique(d_counts_clean$sub_n_new)
   distances <- unique(d_counts_clean$distance)
   n_dists <- length(distances)
@@ -145,3 +144,5 @@ p <- data_preds_all %>%
   theme(text = element_text(size=19))
 p
 ggsave(p, filename = path(model_dir,glue("{which_model}_means_model_v_data.jpeg")),width=6,height=8)  
+
+
