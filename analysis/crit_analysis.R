@@ -387,3 +387,28 @@ d_mchoice_by_set_dist %>%
   theme(text=element_text(size=18))
 ggsave(filename = here("analysis","plots","crit_mean_choice_by_set_dist_labelHW.jpeg"),
        width=4,height=6)
+
+# ranking analysis ===============================================================
+d_rank <- d_att_choice %>%
+  rowwise() %>%
+  mutate(middle_att=setdiff(c("t","c","d"),c(best_att,worst_att)),
+         rank=str_c(best_att,middle_att,worst_att)) %>%
+  ungroup()
+
+d_m_rank <- d_rank %>%
+  group_by(sub_n,distance,rank) %>%
+  summarise(N=n()) %>%
+  group_by(sub_n,distance) %>%
+  mutate(prop=N/sum(N)) %>%
+  group_by(distance,rank) %>%
+  summarise(m=mean(prop),
+            se=sd(prop)/sqrt(n()),
+            l=m-se,
+            u=m+se)
+d_m_rank %>%
+  filter(distance==5) %>%
+  ggplot(aes(reorder(rank,-m),m))+
+  geom_col(fill="lightblue",position="dodge",width=.5)+
+  geom_errorbar(aes(ymin=l,ymax=u),position=position_dodge(width=.5),width=.1)+
+  facet_grid(distance~.,scales="free_x")+
+  ggthemes::theme_few()

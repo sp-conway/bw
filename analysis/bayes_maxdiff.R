@@ -94,10 +94,11 @@ distance2 <- if_else(d_counts_clean$distance==2,1,0)
 distance5 <- if_else(d_counts_clean$distance==5,1,0)
 distance9 <- if_else(d_counts_clean$distance==9,1,0)
 distance14 <- if_else(d_counts_clean$distance==14,1,0)
+# IN ORDER OF TCD, TDC, CTD, CDT, DTC, DCT
 counts <- cbind(d_counts_clean$tcd,
                 d_counts_clean$tdc,
-                d_counts_clean$cdt,
                 d_counts_clean$ctd,
+                d_counts_clean$cdt,
                 d_counts_clean$dtc,
                 d_counts_clean$dct)
 stan_data <- list(N=N,
