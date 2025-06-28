@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+<<<<<<< HEAD
 *fit.RData
 *p_best.RData
 *p_worst.RData
@@ -12,3 +13,5 @@ logit_probit.R
 =======
 *slurm
 >>>>>>> refs/remotes/origin/main
+=======
+>>>>>>> fdc6357c50a12581fc2648e1732130e734dc66a1

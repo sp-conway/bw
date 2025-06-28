@@ -67,14 +67,11 @@ d <- here("data","cleaned","bw_all.csv") %>%
   mutate(order=str_c(best_att,middle_att,worst_att)) %>%
   select(sub_n, set, distance,order) 
 
-# tcd tdc ctd cdt dtc dct
 d_counts <- d %>%
   group_by(sub_n,set,distance,order) %>%
   summarise(N=n()) %>%
   ungroup() %>%
-  pivot_wider(names_from = order, values_from = N, values_fill = 0) %>%
-  relocate(c(tcd, tdc, ctd, cdt, dtc, dct),.after=distance)
-
+  pivot_wider(names_from = order, values_from = N, values_fill = 0) 
 n_subs <- length(unique(d_counts$sub_n))
 
 # re-numbering subjects to be sequential
@@ -205,6 +202,42 @@ if(!file_exists(fit_file) | debug_model){
   save(p_best,file=path(model_dir,glue("{which_model}_p_best.RData")))
   save(p_worst,file=path(model_dir,glue("{which_model}_p_worst.RData")))
   save(counts_rank_rep,file=path(model_dir,glue("{which_model}_counts_rank_rep.RData")))
+}else{
+  load(fit_file)
+  U <- extract(fit,pars="U")$U
+  distances <- case_when(d_counts_clean$distance==2~1,
+                         d_counts_clean$distance==5~2,
+                        d_counts_clean$distance==9~3,
+                        d_counts_clean$distance==14~4)
+  U_summary <- tibble()
+  for(i in 1:4){
+    print(i)
+    for(j in 1:3){
+      tmp <- rowMeans(U[,distances==distances[i],j])
+      U_summary <- bind_rows(U_summary,
+                             tibble(
+                               option=c("t","c","d")[j],
+                               distance=c(2,5,9,14)[i],
+                               m=mean(tmp),
+                               l=HDInterval::hdi(tmp)[1],
+                               u=HDInterval::hdi(tmp)[2]
+                             ))
+    }
+  }
+  U_summary %>%
+    ggplot(aes(distance,m,fill=option))+
+    geom_col(position="dodge",width=1.2)+
+    geom_errorbar(aes(ymin=l,ymax=u),position=position_dodge(width=1.2),width=.05)+
+    geom_hline(yintercept=0,alpha=.5)+
+    scale_x_continuous(breaks=c(2,5,9,14),limits=c(0,16),labels=c("2%","5%","9%","14%"))+
+    # scale_y_continuous(limits=c(-.1,.05))+
+    # scale_shape_manual(values=c(1,4),name="")+
+    ggsci::scale_fill_startrek()+
+    labs(x="tdd",y="mean U")+
+    ggthemes::theme_few()
+  ggsave(filename=path(model_dir,glue("{which_model}_U_mean_posterior.jpeg")),width=5,height=4)
+  
+
 }
 
 
