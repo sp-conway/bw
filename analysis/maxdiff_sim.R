@@ -2,7 +2,7 @@ rm(list=ls())
 # simulating maxdiff model to show monotonicity
 library(tidyverse)
 library(here)
-
+N <- 500
 model <- function(index){
   U <- rnorm(3)
   Ub <- U
@@ -20,13 +20,13 @@ model <- function(index){
 }
 
 set.seed(6)
-sim <- map(1:15, model) %>%
+sim <- map(seq_len(N), model) %>%
   list_rbind()
 
 sim %>%
   ggplot(aes(pw,pb,group=index))+
-  geom_point(alpha=.3,color="darkred")+
-  geom_line(alpha=.6,color="darkred")+
+  # geom_point(alpha=.4,color="darkred")+
+  geom_line(alpha=.1,color="darkred")+
   labs(x="p(worst)",y="p(best)")+
   coord_fixed(xlim=c(0,1),ylim=c(0,1))+
   ggthemes::theme_few()

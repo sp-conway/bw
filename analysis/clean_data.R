@@ -58,13 +58,15 @@ clean <- function(f,n_trials=598){ # finished ppts should have 598 rows
              across(c(rt_best,rt_worst),function(x) x*1000)) %>%
       select(-c(choice_1,choice_2,rt_1,rt_2,computer_n)) %>%
       relocate(c(block_n,trial_n),.after=bw_cond) %>%
-      relocate(c(a1,a2,a3),.after = w3) %>%
-      filter(bw_cond=="bw" & (rt_best >=100 & rt_best<=10000) | # FILTER OUT SLOW AND FAST RTS BUT ONLY FOR FIRST CHOICE
-             bw_cond=="wb" & (rt_worst >=100 & rt_worst<=10000) ) 
+      relocate(c(a1,a2,a3),.after = w3) 
+    
   d_all <- dd %>% 
+    filter(bw_cond=="bw" & (rt_best >=100 & rt_best<=10000) | # FILTER OUT SLOW AND FAST RTS BUT ONLY FOR FIRST CHOICE
+             bw_cond=="wb" & (rt_worst >=100 & rt_worst<=10000) )
+  d_all <- d_all %>%
   mutate(
-    a_max=apply(cbind(dd$a1,dd$a2,dd$a3),1,max), # figure out which is max and min on each trial
-    a_min=apply(cbind(dd$a1,dd$a2,dd$a3),1,min),
+    a_max=apply(cbind(d_all$a1,d_all$a2,d_all$a3),1,max), # figure out which is max and min on each trial
+    a_min=apply(cbind(d_all$a1,d_all$a2,d_all$a3),1,min),
     choice_best_correct=case_when( # figure out correct or not. had to get best and smallest
       choice_best==1 & a1==a_max~1,
       choice_best==2 & a2==a_max~1,
@@ -79,7 +81,9 @@ clean <- function(f,n_trials=598){ # finished ppts should have 598 rows
     ),
     both_correct=as.integer(choice_worst_correct+choice_best_correct==2)
   )
-    return(d_all)
+  n_remove <- nrow(dd)-nrow(d_all)
+  d_all$n_remove <- n_remove
+   return(d_all)
   }
 }
 
@@ -111,6 +115,11 @@ d_all_cleaned <- filter(d_all, sub_n %in% subs_keep)
 cat("\n=====\ninitial count",length(unique(d_all$sub_n)),"\n=====\n",sep=" ")
 cat("\n=====\nremoved",length(unique(d_all$sub_n))-length(subs_keep),"participants for failing catch trials\n=====\n",sep=" ")
 cat("\n=====\nfinal count",length(subs_keep),"\n=====\n",sep=" ")
+
+# NUMBER OF SLOW/FAST TRIALS FILTERED OUT =============================================
+d_all_cleaned %>%
+  distinct(sub_n,n_remove) %>%
+  summarise(N=sum(n_remove))
 
 # FINAL SUBJECT COUNT==========================================================================================
 d_all_cleaned %>%

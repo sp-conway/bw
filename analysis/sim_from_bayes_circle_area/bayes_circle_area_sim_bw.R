@@ -78,7 +78,12 @@ load_and_run_model <- function(N,cond,outl="no_outliers"){
 
 model_sims <- load_and_run_model(N,"triangle",outl = outl)
 model_sims_wide <- model_sims %>%
-  pivot_wider(names_from = type, values_from = p, names_prefix = "m_prop_") 
+  pivot_wider(names_from = type, values_from = p, names_prefix = "m_prop_")  %>%
+  mutate(distance=str_glue("{distance}% TDD"),
+         distance=factor(distance,levels=c("2% TDD",
+                                           "5% TDD",
+                                           "9% TDD",
+                                           "14% TDD")))
 
 model_sims_wide %>%
   ggplot(aes(m_prop_worst,m_prop_best,col=option,label=str_sub(option,1,1)))+
