@@ -246,17 +246,19 @@ d_att_choice_mean_by_dist <- compute_mean_choice_props(d_att_choice,groups=vars(
 d_att_choice_mean_all <- bind_rows(d_att_choice_mean_by_set_dist,d_att_choice_mean_by_dist) %>%
   mutate(distance=factor(str_glue("{distance}%"),
                          levels=c("2%","5%","9%","14%")),
-         set=factor(set,levels=c("target wide","target tall","collapsed")))
+         set=factor(set,levels=c("target wide","target tall","collapsed")),
+         option=factor(option,levels=c("t","c","d")))
 ggplot(d_att_choice_mean_all,aes(m_prop_worst,m_prop_best,col=option))+
-  geom_text(aes(label=option),alpha=.8, size=4)+
+  geom_text(aes(label=option),alpha=.8, size=4,show.legend = F)+
   coord_fixed(xlim=c(0,1),ylim=c(0,1))+
   scale_x_continuous(breaks=c(0,.5,1)) +  
   scale_y_continuous(breaks=c(0,.5,1))  +  
   labs(x="p(worst)",y="p(best)")+
+  ggsci::scale_color_startrek()+
   ggthemes::theme_few()+
   facet_grid(distance~set)+
   theme(text = element_text(size=14),plot.title = element_text(hjust=0.5))
-ggsave(filename = here("analysis","plots","crit_mean_props.jpeg"),width=6,height=7)
+ggsave(filename = here("analysis","plots","crit_mean_props.jpeg"),width=8,height=7)
 
 # ranking analysis ===============================================================
 d_rank <- d_att_choice %>%
