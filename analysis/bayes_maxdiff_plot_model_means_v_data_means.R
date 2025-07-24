@@ -41,12 +41,12 @@ get_model_mean_preds <- function(preds, data, type){
         m=c(mean(t_tmp),
             mean(c_tmp),
             mean(d_tmp)),
-        lower=c(hdi(t_tmp)[1],
-                    hdi(c_tmp)[1],
-                    hdi(d_tmp)[1]),
-        upper=c(hdi(t_tmp)[2],
-                    hdi(c_tmp)[2],
-                    hdi(d_tmp)[2])
+        lower=c(hdi(t_tmp)["lower"],
+                hdi(c_tmp)["lower"],
+                hdi(d_tmp)["lower"]),
+        upper=c(hdi(t_tmp)["upper"],
+                hdi(c_tmp)["upper"],
+                hdi(d_tmp)["upper"])
       )
     )
     i <- i+1
@@ -116,7 +116,7 @@ analyze_data <- function(){
               n=n(),
               se=sd(prop)/sqrt(n),
               lower=m_prop-qt(.975,n-1)*se,
-              upper=m_prop-qt(.975,n-1)*se) %>%
+              upper=m_prop+qt(.975,n-1)*se) %>%
     ungroup() %>%
     select(-c(n,se)) %>%
     pivot_wider(names_from = type,
@@ -128,21 +128,40 @@ analyze_data <- function(){
 }
 
 data_preds_all <- analyze_data() %>%
-  bind_rows(preds_all)
+  bind_rows(preds_all) %>%
+  # pivot_wider(names_from = source,
+  #             values_from = c(m_best,m_worst,lower_worst,upper_worst,lower_best,upper_best)) %>%
+  mutate(choice=factor(choice,levels=c("t","c","d")))
+# legend_df <- tibble(
+#   x = c(-1,-1,-1,-1,-1,-1), y = c(-1,-1,-1,-1,-1,-1),
+#   source = rep(c("model", "data"),3),
+#   choice=c("t","c","d","t","c","d")
+# )
 
-# 
-p <- data_preds_all %>%
-  ggplot(aes(m_worst,m_best,col=choice,shape=source))+
-  geom_point(alpha=.5)+
-  coord_fixed(xlim=c(0,.75),ylim=c(0,.75))+
-  scale_shape_manual(name="",
-                     values = c(1,4))+
+ggplot(data=data_preds_all,aes(col=choice))+
+  geom_point(aes(m_worst,m_best,shape=source))+
+  # geom_point(aes(x = m_worst_model, y = m_best_model), shape = 4, size = 3, alpha=0, show.legend = FALSE)+
+  # geom_point(aes(x = m_worst_data, y = m_best_data), shape = 17, size = 3, alpha=0, show.legend = FALSE)+
+  # geom_point(aes(x=m_worst_data,y=m_best_data),shape=1,size=2)+
+  # geom_segment(aes(y=m_best_data,x=lower_worst_data,xend=upper_worst_data,yend=m_best_data))+
+  # geom_segment(aes(x=m_worst_data,y=lower_best_data,yend=upper_best_data,xend=m_worst_data))+
+  # geom_point(data = legend_df, aes(x = x, y = y, shape = source), size = 3) +
+  scale_shape_manual(name="",values=c(1,4)) +
+  coord_fixed(xlim=c(0,1),ylim=c(0,1))+
+  # annotate("point", x = 0.1, y = 0.75, shape = 17, size = 3) +
+  # annotate("text", x = 0.12, y = 0.75, label = "Data", hjust = 0, size = 5) +
+  # annotate("point", x = 0.1, y = 0.7, shape = 4, size = 3) +
+  # annotate("text", x = 0.12, y = 0.7, label = "Model", hjust = 0, size = 5)+
   facet_grid(distance~.)+
   ggsci::scale_color_startrek(name="")+
-  labs(x="mean p(worst)",y="mean p(best)")+
+  labs(x="meanp(worst)",y="meanp(best)")+
   ggthemes::theme_few()+
-  theme(text = element_text(size=19))
-p
-ggsave(p, filename = path(model_dir,glue("{which_model}_means_model_v_data.jpeg")),width=6,height=8)  
+  theme( text = element_text(size = 19),
+          legend.position = "top",    
+          legend.box = "horizontal", 
+          legend.title = element_text(size = 14),
+          legend.text = element_text(size = 12)
+        )
+ggsave(filename = path(model_dir,glue("{which_model}_means_model_v_data.jpeg")),width=6,height=6)  
 
 
