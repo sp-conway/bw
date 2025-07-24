@@ -158,6 +158,7 @@ data_preds_all <- bind_rows(data,
               values_fill = 0)
 # 
 data_preds_all %>%
+  mutate(choice=factor(choice,levels=c("t","c","d"))) %>%
   ggplot(aes(m_data,m_model,col=choice))+
   geom_point(alpha=.25)+
   geom_abline(slope=1,intercept=0,linetype="dashed")+
