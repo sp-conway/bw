@@ -148,6 +148,8 @@ ggplot(data=data_preds_all,aes(col=choice))+
   # geom_point(data = legend_df, aes(x = x, y = y, shape = source), size = 3) +
   scale_shape_manual(name="",values=c(1,4)) +
   coord_fixed(xlim=c(0,1),ylim=c(0,1))+
+  scale_x_continuous(breaks=c(0,.5,1))+
+  scale_y_continuous(breaks=c(0,.5,1))+
   # annotate("point", x = 0.1, y = 0.75, shape = 17, size = 3) +
   # annotate("text", x = 0.12, y = 0.75, label = "Data", hjust = 0, size = 5) +
   # annotate("point", x = 0.1, y = 0.7, shape = 4, size = 3) +

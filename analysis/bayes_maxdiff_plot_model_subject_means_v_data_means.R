@@ -164,8 +164,8 @@ data_preds_all %>%
   geom_abline(slope=1,intercept=0,linetype="dashed")+
   geom_errorbar(aes(ymin=lower_model,ymax=upper_model),alpha=.25)+
   coord_fixed(xlim=c(0,1),ylim=c(0,1))+
-  scale_x_continuous(breaks=c(0,.5,1))+
-  scale_y_continuous(breaks=c(0,.5,1))+
+  scale_x_continuous(breaks=c(0,.5,1),labels=c("0",".5","1"))+
+  scale_y_continuous(breaks=c(0,.5,1),labels=c("0",".5","1"))+
   ggsci::scale_color_startrek(name="")+
   # scale_shape_manual(name="",
   #                    values = c(1,4))+
@@ -174,4 +174,4 @@ data_preds_all %>%
   ggthemes::theme_few()+
   theme(text = element_text(size=19))
 
-ggsave(filename = path(model_dir,glue("{which_model}_subjectmeans_model_v_data.jpeg")),width=8,height=8)  
+ggsave(filename = path(model_dir,glue("{which_model}_subjectmeans_model_v_data.jpeg")),width=10,height=8)  
