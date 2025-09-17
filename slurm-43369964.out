@@ -1,0 +1,7 @@
+Loading r-rocker-ml-verse version 4.4.0+apptainer
+Loading apptainer version latest
+
+No apptainer cache directory found. To prevent apptainer from filling up your
+home directory, you can create a new directory at
+`/work/pi_<your_pi_name>/.apptainer/cache` and reload the module. 
+Fatal error: cannot open file 'analysis/sim_from_bayes_circle_area/bayes_circle_area_sim_bw_ordering.R': No such file or directory
