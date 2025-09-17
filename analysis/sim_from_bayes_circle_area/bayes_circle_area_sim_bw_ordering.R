@@ -14,8 +14,9 @@ N <- 1e7
 outl <- "no_outliers"
 which_model <- "sigma_constant_comp_effect"
 const_tc <- T
+eq_cors <- T
 
-load_and_run_model <- function(N,cond,const_tc=F,outl="no_outliers"){
+load_and_run_model <- function(N,cond,const_tc=F,eq_cors=F,outl="no_outliers"){
   print(cond)
   dir <- here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,cond,outl)
   load(path(dir,"mu_avgs.RData"))
@@ -34,6 +35,9 @@ load_and_run_model <- function(N,cond,const_tc=F,outl="no_outliers"){
     ) %>%
     filter(!is.na(pair)) %>%
     select(pair,mean)
+  if(eq_cors){
+    cors$mean <- mean(cors$mean) # if correlations are supposed to be equal constrain them this way
+  }
   a <- ( s %*% t(s) )
   cv <- matrix(c(1, cors$mean[1], cors$mean[2],
                  cors$mean[1], 1, cors$mean[3],
@@ -84,16 +88,24 @@ load_and_run_model <- function(N,cond,const_tc=F,outl="no_outliers"){
   return(sim)
 }
 
-model_sims <- load_and_run_model(N,"triangle",const_tc=const_tc,outl = outl) # only simming triangle cond
+f <- here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_ordering_{which_model}_{outl}{tc}{cor}.csv",
+                                                                                       tc=ifelse(const_tc,"_const_tc",""),
+                                                                                       cor=ifelse(eq_cors,"_eq_cors","")))
+if(file_exists(f)){
+  model_sims <- read_csv(f)
+}else{
+  model_sims <- load_and_run_model(N,cond="triangle",const_tc=const_tc,eq_cors=eq_cors,outl = outl) # only simming triangle cond
+  write_csv(model_sims, file=f)
+}
 ggplot(model_sims,aes(reorder(order,-prop),prop))+
   geom_col(position="dodge",fill="lightblue")+
   facet_grid(distance~.)+
+  labs(x="order")+
   ggthemes::theme_few()
 
 ggsave(filename=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_ordering_{which_model}_{outl}{tc}.jpeg",
                                                                                                   tc=ifelse(const_tc,"_const_tc",""))),width=6,height=8)
-write_csv(model_sims, file=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_ordering_{which_model}_{outl}{tc}.csv",
-                                                                                                             tc=ifelse(const_tc,"_const_tc",""))))
+
 model_sims %>% 
   arrange(distance,prop) %>%
   print(n=24)
