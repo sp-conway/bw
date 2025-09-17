@@ -13,8 +13,9 @@ library(fs)
 N <- 1e7
 outl <- "no_outliers"
 which_model <- "sigma_constant_comp_effect"
+const_tc <- T
 
-load_and_run_model <- function(N,cond,outl="no_outliers"){
+load_and_run_model <- function(N,cond,const_tc=F,outl="no_outliers"){
   print(cond)
   dir <- here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,cond,outl)
   load(path(dir,"mu_avgs.RData"))
@@ -60,6 +61,9 @@ load_and_run_model <- function(N,cond,outl="no_outliers"){
                  mu_tmp %>%
                    filter(stim=="d") %>%
                    pull(m))
+    if(const_tc){
+      mu_tmp1[1:2] <- mean(mu_tmp1[1:2])
+    }
     x <- rmvnorm(N,mu_tmp1,cv)
     
     
@@ -80,14 +84,16 @@ load_and_run_model <- function(N,cond,outl="no_outliers"){
   return(sim)
 }
 
-model_sims <- load_and_run_model(N,"triangle",outl = outl) # only simming triangle cond
+model_sims <- load_and_run_model(N,"triangle",const_tc=const_tc,outl = outl) # only simming triangle cond
 ggplot(model_sims,aes(reorder(order,-prop),prop))+
   geom_col(position="dodge",fill="lightblue")+
   facet_grid(distance~.)+
   ggthemes::theme_few()
 
-ggsave(filename=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_ordering_{which_model}_{outl}.jpeg")),width=6,height=8)
-write_csv(model_sims, file=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_ordering_{which_model}_{outl}.csv")))
+ggsave(filename=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_ordering_{which_model}_{outl}{tc}.jpeg",
+                                                                                                  tc=ifelse(const_tc,"const_tc",""))),width=6,height=8)
+write_csv(model_sims, file=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_ordering_{which_model}_{outl}{tc}.csv",
+                                                                                                             tc=ifelse(const_tc,"const_tc",""))))
 model_sims %>% 
   arrange(distance,prop) %>%
   print(n=24)
