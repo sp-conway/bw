@@ -91,9 +91,9 @@ ggplot(model_sims,aes(reorder(order,-prop),prop))+
   ggthemes::theme_few()
 
 ggsave(filename=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_ordering_{which_model}_{outl}{tc}.jpeg",
-                                                                                                  tc=ifelse(const_tc,"const_tc",""))),width=6,height=8)
+                                                                                                  tc=ifelse(const_tc,"_const_tc",""))),width=6,height=8)
 write_csv(model_sims, file=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_ordering_{which_model}_{outl}{tc}.csv",
-                                                                                                             tc=ifelse(const_tc,"const_tc",""))))
+                                                                                                             tc=ifelse(const_tc,"_const_tc",""))))
 model_sims %>% 
   arrange(distance,prop) %>%
   print(n=24)
