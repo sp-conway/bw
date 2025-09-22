@@ -13,7 +13,7 @@ library(fs)
 N <- 1e7
 outl <- "no_outliers"
 which_model <- "sigma_constant_comp_effect"
-const_tc <- T
+const_tc <- F
 eq_cors <- T
 
 load_and_run_model <- function(N,cond,const_tc=F,eq_cors=F,outl="no_outliers"){
