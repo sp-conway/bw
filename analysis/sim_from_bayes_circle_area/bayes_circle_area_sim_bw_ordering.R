@@ -13,7 +13,7 @@ library(fs)
 N <- 1e7
 outl <- "no_outliers"
 which_model <- "sigma_constant_comp_effect"
-const_tc <- F
+const_tc <- T
 eq_cors <- T
 
 load_and_run_model <- function(N,cond,const_tc=F,eq_cors=F,outl="no_outliers"){
@@ -103,8 +103,9 @@ ggplot(model_sims,aes(reorder(order,-prop),prop))+
   labs(x="order")+
   ggthemes::theme_few()
 
-ggsave(filename=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_ordering_{which_model}_{outl}{tc}.jpeg",
-                                                                                                  tc=ifelse(const_tc,"_const_tc",""))),width=6,height=8)
+ggsave(filename=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_ordering_{which_model}_{outl}{tc}{cor}.jpeg",
+                                                                                                  tc=ifelse(const_tc,"_const_tc",""),
+                                                                                                  cor=ifelse(eq_cors,"_eq_cors",""))),width=6,height=8)
 
 model_sims %>% 
   arrange(distance,prop) %>%

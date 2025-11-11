@@ -3,6 +3,7 @@ library(here)
 library(tidyverse)
 library(glue)
 library(fs)
+library(patchwork)
 
 # read in data, only include critical trials, recode bw cond to be more understandable
 d <- here("data","cleaned","bw_all.csv") %>%
@@ -260,27 +261,115 @@ ggplot(d_att_choice_mean_all,aes(m_prop_worst,m_prop_best,col=option))+
   theme(text = element_text(size=14),plot.title = element_text(hjust=0.5))
 ggsave(filename = here("analysis","plots","crit_mean_props.jpeg"),width=8,height=7)
 
+d_att_choice_mean_by_dist %>%
+  select(-set) %>%
+  write_csv(file=here("analysis/collapsed_data_for_andrew/crit_collapsed_data_means.csv"))
 # ranking analysis ===============================================================
-d_rank <- d_att_choice %>%
+order_levels <- c("tcd","ctd","tdc","cdt","dtc","dct")
+d_order <- d_att_choice %>%
   rowwise() %>%
   mutate(middle_att=setdiff(c("t","c","d"),c(best_att,worst_att)),
-         rank=str_c(best_att,middle_att,worst_att)) %>%
+         order=factor(str_c(best_att,middle_att,worst_att),
+                      levels=order_levels)) %>%
   ungroup()
 
-d_m_rank <- d_rank %>%
-  group_by(sub_n,distance,rank) %>%
+d_sub_order <- d_order %>%
+  group_by(sub_n,distance,order) %>%
   summarise(N=n()) %>%
   group_by(sub_n,distance) %>%
   mutate(prop=N/sum(N)) %>%
-  group_by(distance,rank) %>%
+  ungroup()
+
+d_m_order <- d_sub_order %>%
+  group_by(distance,order) %>%
   summarise(m=mean(prop),
-            se=sd(prop)/sqrt(n()),
-            l=m-se,
-            u=m+se)
-d_m_rank %>%
-  filter(distance==5) %>%
-  ggplot(aes(reorder(rank,-m),m))+
-  geom_col(fill="lightblue",position="dodge",width=.5)+
-  geom_errorbar(aes(ymin=l,ymax=u),position=position_dodge(width=.5),width=.1)+
-  facet_grid(distance~.,scales="free_x")+
-  ggthemes::theme_few()
+            s=qt(.025,n()-1,lower.tail = F)*sd(prop)/sqrt(n()),
+            l=m-s,
+            u=m+s)
+
+# Getting model predictions, plotting in the same way data are plotted ===============================================================
+# see sim_from_bayes_circle_area for code generating these predictions
+f_preds <- here("analysis/sim_from_bayes_circle_area/bayes_circle_area/sigma_constant_comp_effect/bw_preds_ordering_sigma_constant_comp_effect_no_outliers_const_tc.csv")
+preds <- f_preds %>%
+  read_csv() %>%
+  select(-c(n,disp_cond)) %>%
+  mutate(order=factor(order,levels=order_levels),
+         model="cor estimated")
+f_preds_cor_equal <- here("analysis/sim_from_bayes_circle_area/bayes_circle_area/sigma_constant_comp_effect/bw_preds_ordering_sigma_constant_comp_effect_no_outliers_const_tc_eq_cors.csv")
+preds_cor_equal <- f_preds_cor_equal %>%
+  read_csv() %>%
+  select(-c(n,disp_cond)) %>%
+  mutate(order=factor(order,levels=order_levels),
+         model="cor equal")
+preds_all <- bind_rows(preds,
+                       preds_cor_equal)
+
+do_plot_model <- function(m_preds, dist){
+  m_preds <- m_preds %>%
+    filter(distance==dist)
+  p <- m_preds %>%
+    ggplot(aes(order,prop,col=model))+
+    geom_point(aes(order,prop,col=model,shape=model),alpha=.85,size=2)+
+    geom_line(aes(group=model),alpha=.5)+
+    scale_shape_manual(name="",values=c(1,4))+
+    scale_y_continuous(limits=c(.1,.25))+
+    ggsci::scale_color_d3(name="")+
+    labs(x="choice order",
+         y="mean proportion of choice order",
+         title=glue("TDD: {dist}%"))+
+    ggthemes::theme_few()+
+    theme(plot.title=element_text(hjust=0.5,size=10),text=element_text(size=10),
+          legend.position="none")
+  if(dist==2){
+    p <- p+
+      theme(legend.position="inside",
+            legend.position.inside=c(.75,.76),legend.title=element_blank(),
+            legend.text = element_text(size=10),legend.margin = margin_auto(6),
+            axis.text.x=element_blank(),
+            axis.ticks.x=element_blank())
+  }else if(dist==5 | dist==9){
+    p <- p+theme(axis.text.x=element_blank(),
+                 axis.ticks.x=element_blank())
+  }
+  return(p)  
+}
+p_model <- map(list(2,5,9,14),
+          do_plot_model,
+          m_preds=preds_all)
+p_model[[1]]+p_model[[2]]+p_model[[3]]+p_model[[4]]+plot_layout(ncol=1,axis_titles = "collect")
+ggsave(filename = here("analysis/plots/crit_ordering_model_preds.jpeg"),width=4,height=8)
+
+do_plot_data <- function(means, subs, dist){
+  means <- means %>%
+    filter(distance==dist)
+  subs <- subs %>%
+    filter(distance==dist)
+  p <- means %>%
+    ggplot(aes(order,m))+
+    geom_line(aes(group=distance),col="black")+
+    geom_errorbar(aes(ymin=l,ymax=u),position = position_dodge(width=2),width=.1,col="red3")+
+    geom_line(data=subs,aes(order,prop,group=sub_n),col="grey",alpha=.04,inherit.aes=F)+
+    scale_y_continuous(limits=c(0,.75),breaks=seq(0,.75,.25))+
+    ggsci::scale_color_d3()+
+    labs(x="choice order",y="mean proportion of choice order",title=glue("TDD: {dist}%"))+
+    ggthemes::theme_few()+
+    theme(plot.title=element_text(hjust=0.5,size=10),
+          text=element_text(size=12))
+  if(dist==2){
+    p <- p+
+      annotate(geom="segment",x=4,xend=4.5,y=.6,col="black")+
+      annotate(geom="segment",x=4,xend=4.5,y=.45,col="grey")+
+      annotate(geom="text",x=5.18,y=.6,label="Group Means",size=2.75)+
+      annotate(geom="text",x=5.1,y=.45,label="Participants",size=2.75)+
+      theme(axis.text.x=element_blank(),axis.ticks.x=element_blank())
+  }else if(dist==5 | dist==9){
+    p <- p+
+      theme(axis.text.x=element_blank(),axis.ticks.x=element_blank())
+  }
+  return(p)
+} 
+p_data <- map(list(2,5,9,14),
+              do_plot_data,means=d_m_order,
+              subs=d_sub_order) 
+p_data[[1]]+p_data[[2]]+p_data[[3]]+p_data[[4]]+plot_layout(ncol=1,axis_titles = "collect")
+ggsave(filename = here("analysis/plots/crit_ordering_data.jpeg"),width=4,height=8)
