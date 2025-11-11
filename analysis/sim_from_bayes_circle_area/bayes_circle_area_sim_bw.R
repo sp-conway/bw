@@ -13,8 +13,8 @@ library(fs)
 N <- 1e6
 outl <- "no_outliers"
 which_model <- "sigma_constant_comp_effect"
-
-load_and_run_model <- function(N,cond,outl="no_outliers"){
+vary_decoy_means <- F
+load_and_run_model <- function(N,cond,outl="no_outliers",vary_decoy_means=F){
   print(cond)
   dir <- here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,cond,outl)
   load(path(dir,"mu_avgs.RData"))
@@ -39,6 +39,16 @@ load_and_run_model <- function(N,cond,outl="no_outliers"){
                  cors$mean[2], cors$mean[3], 1), nrow=3, ncol=3,byrow=T)*a
   dists <- unique(mu_avgs_fully_collapsed_w_hdis$distance)
   sim <- tibble()
+  if(vary_decoy_means){
+    mu_avgs_fully_collapsed_w_hdis <- mu_avgs_fully_collapsed_w_hdis %>%
+      mutate(m=case_when(
+        stim=="d" & distance==2 ~ -0.025,
+        stim=="d" & distance==5 ~ -0.095,
+        stim=="d" & distance==9 ~ -0.20,
+        stim=="d" & distance==14 ~ -0.26,
+        T~m
+      ))
+  }
   for(d in dists){
     print(d)
     mu_tmp <- mu_avgs_fully_collapsed_w_hdis %>%
@@ -76,7 +86,7 @@ load_and_run_model <- function(N,cond,outl="no_outliers"){
   return(sim)
 }
 
-model_sims <- load_and_run_model(N,"triangle",outl = outl) # only simming triangle cond
+model_sims <- load_and_run_model(N,"triangle",outl = outl,vary_decoy_means=vary_decoy_means) # only simming triangle cond
 model_sims_wide <- model_sims %>%
   pivot_wider(names_from = type, values_from = p, names_prefix = "m_prop_")  %>%
   mutate(distance=str_glue("{distance}% TDD"),
@@ -91,15 +101,17 @@ model_sims_wide %>%
   geom_text(size=6,alpha=.8)+
   # scale_x_continuous(breaks=c(25,.5,1))+
   # scale_y_continuous(breaks=c(0,.5,1))+
-  coord_fixed(xlim=c(.2,.5),ylim=c(.2,.5))+
+  coord_fixed(xlim=c(0,.5),ylim=c(0,.5))+
   ggsci::scale_color_startrek(name="stimulus")+
   labs(x="p(worst)",y="p(best)")+
   facet_grid(distance~.)+
   ggthemes::theme_few()+
   theme(text=element_text(size=18),
         legend.position = "none")
-ggsave(filename=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_{which_model}_{outl}.jpeg")),width=6,height=8)
-write_csv(model_sims_wide, file=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_{which_model}_{outl}.csv")))
+ggsave(filename=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_{which_model}_{outl}{dec}.jpeg",
+                                                                                                  dec=ifelse(vary_decoy_means,"_vary_decoy_means",""))),width=6,height=8)
+write_csv(model_sims_wide, file=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_{which_model}_{outl}{dec}.csv",
+                                                                                                                  dec=ifelse(vary_decoy_means,"_vary_decoy_means",""))))
 
 model_sims_wide %>%
   filter(option!="d") %>%
