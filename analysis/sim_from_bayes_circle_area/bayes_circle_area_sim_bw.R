@@ -13,7 +13,7 @@ library(fs)
 N <- 1e6
 outl <- "no_outliers"
 which_model <- "sigma_constant_comp_effect"
-vary_decoy_means <- F
+vary_decoy_means <- T
 load_and_run_model <- function(N,cond,outl="no_outliers",vary_decoy_means=F){
   print(cond)
   dir <- here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,cond,outl)
