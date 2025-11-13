@@ -289,13 +289,13 @@ d_m_order <- d_sub_order %>%
 
 # Getting model predictions, plotting in the same way data are plotted ===============================================================
 # see sim_from_bayes_circle_area for code generating these predictions
-f_preds <- here("analysis/sim_from_bayes_circle_area/bayes_circle_area/sigma_constant_comp_effect/bw_preds_ordering_sigma_constant_comp_effect_no_outliers_const_tc.csv")
-preds <- f_preds %>%
+f_preds <- here("analysis/sim_from_bayes_circle_area/bayes_circle_area/sigma_constant_comp_effect/bw_preds_ordering_sigma_constant_comp_effect_no_outliers_const_tc_vary_decoy_means.csv")
+preds_cor_est_vary_decoy <- f_preds %>%
   read_csv() %>%
   select(-c(n,disp_cond)) %>%
   mutate(order=factor(order,levels=order_levels),
          model="cor estimated")
-f_preds_cor_equal <- here("analysis/sim_from_bayes_circle_area/bayes_circle_area/sigma_constant_comp_effect/bw_preds_ordering_sigma_constant_comp_effect_no_outliers_const_tc_eq_cors.csv")
+f_preds_cor_equal <- here("analysis/sim_from_bayes_circle_area/bayes_circle_area/sigma_constant_comp_effect/bw_preds_ordering_sigma_constant_comp_effect_no_outliers_const_tc_eq_cors_vary_decoy_means.csv")
 preds_cor_equal <- f_preds_cor_equal %>%
   read_csv() %>%
   select(-c(n,disp_cond)) %>%
@@ -312,7 +312,7 @@ do_plot_model <- function(m_preds, dist){
     geom_point(aes(order,prop,col=model,shape=model),alpha=.85,size=2)+
     geom_line(aes(group=model),alpha=.5)+
     scale_shape_manual(name="",values=c(1,4))+
-    scale_y_continuous(limits=c(.1,.25))+
+    scale_y_continuous(limits=c(0,.5))+
     ggsci::scale_color_d3(name="")+
     labs(x="choice order",
          y="mean proportion of choice order",
@@ -324,7 +324,7 @@ do_plot_model <- function(m_preds, dist){
     p <- p+
       theme(legend.position="inside",
             legend.position.inside=c(.75,.76),legend.title=element_blank(),
-            legend.text = element_text(size=10),legend.margin = margin_auto(6),
+            legend.text = element_text(size=10),legend.margin = margin(6),
             axis.text.x=element_blank(),
             axis.ticks.x=element_blank())
   }else if(dist==5 | dist==9){
@@ -339,7 +339,7 @@ p_model <- map(list(2,5,9,14),
 p_model[[1]]+p_model[[2]]+p_model[[3]]+p_model[[4]]+plot_layout(ncol=1,axis_titles = "collect")
 ggsave(filename = here("analysis/plots/crit_ordering_model_preds.jpeg"),width=4,height=8)
 
-do_plot_data <- function(means, subs, dist){
+do_plot_data <- function(means, subs, dist, plot_model=F, model_preds=NULL){
   means <- means %>%
     filter(distance==dist)
   subs <- subs %>%
@@ -355,6 +355,11 @@ do_plot_data <- function(means, subs, dist){
     ggthemes::theme_few()+
     theme(plot.title=element_text(hjust=0.5,size=10),
           text=element_text(size=12))
+  if(plot_model){
+    model_preds_1 <- model_preds %>%
+      filter(distance==2) 
+    p <- p + geom_line(data=model_preds_1,aes(order,prop,group=distance),col="blue",inherit.aes=F)
+  }
   if(dist==2){
     p <- p+
       annotate(geom="segment",x=4,xend=4.5,y=.6,col="black")+
@@ -370,6 +375,8 @@ do_plot_data <- function(means, subs, dist){
 } 
 p_data <- map(list(2,5,9,14),
               do_plot_data,means=d_m_order,
-              subs=d_sub_order) 
+              subs=d_sub_order,
+              plot_model=T,
+              model_preds=preds) 
 p_data[[1]]+p_data[[2]]+p_data[[3]]+p_data[[4]]+plot_layout(ncol=1,axis_titles = "collect")
 ggsave(filename = here("analysis/plots/crit_ordering_data.jpeg"),width=4,height=8)

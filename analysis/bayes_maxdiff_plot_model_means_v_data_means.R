@@ -54,27 +54,12 @@ get_maxdiff_model_mean_preds <- function(preds, data, type){
   return(mean_preds)
 }
 
-get_mtcm_mean_preds <- function(){
-  p <- here("analysis/sim_from_bayes_circle_area/bayes_circle_area/sigma_constant_comp_effect/bw_preds_sigma_constant_comp_effect_no_outliers_vary_decoy_means.csv") %>%
-    read_csv() %>%
-    rename(m_best=m_prop_best,
-           m_worst=m_prop_worst,
-           choice=option) %>%
-    mutate(source="mtcm") %>%
-    select(-disp_cond)
-  return(p)
-}
-
 preds_all <- bind_rows(get_maxdiff_model_mean_preds(p_best,d_counts_clean,"best"),
                        get_maxdiff_model_mean_preds(p_worst,d_counts_clean,"worst")) %>%
   pivot_wider(names_from = type,
               values_from = c(m,lower,upper)) %>%
-  mutate(source="maxdiff",
-         distance=str_glue("{distance}% TDD")) %>%
-  bind_rows(
-    get_mtcm_mean_preds()
-  )
-
+  mutate(source="model",
+         distance=str_glue("{distance}% TDD")) 
 analyze_data <- function(){
   # read in data, only include critical trials, recode bw cond to be more understandable
   d <- here("data","cleaned","bw_all.csv") %>%
@@ -162,7 +147,7 @@ ggplot(data=data_preds_all,aes(col=choice))+
   # geom_segment(aes(y=m_best_data,x=lower_worst_data,xend=upper_worst_data,yend=m_best_data))+
   # geom_segment(aes(x=m_worst_data,y=lower_best_data,yend=upper_best_data,xend=m_worst_data))+
   # geom_point(data = legend_df, aes(x = x, y = y, shape = source), size = 3) +
-  scale_shape_manual(name="",values=c(4,15,1)) +
+  scale_shape_manual(name="",values=c(4,1)) +
   coord_fixed(xlim=c(0,1),ylim=c(0,1))+
   scale_x_continuous(breaks=c(0,.5,1))+
   scale_y_continuous(breaks=c(0,.5,1))+
@@ -172,7 +157,7 @@ ggplot(data=data_preds_all,aes(col=choice))+
   # annotate("text", x = 0.12, y = 0.7, label = "Model", hjust = 0, size = 5)+
   facet_grid(distance~.)+
   ggsci::scale_color_startrek(name="")+
-  labs(x="meanp(worst)",y="meanp(best)")+
+  labs(x="mean p(worst)",y="mean p(best)")+
   ggthemes::theme_few()+
   theme(legend.text=element_text(size=12),
         legend.box = "vertical")
