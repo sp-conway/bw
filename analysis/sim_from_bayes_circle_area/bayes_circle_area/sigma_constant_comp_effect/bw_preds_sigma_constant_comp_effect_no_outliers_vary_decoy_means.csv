@@ -1,13 +1,13 @@
 option,disp_cond,distance,m_prop_best,m_prop_worst
-t,triangle,2% TDD,0.347372,0.283357
-c,triangle,2% TDD,0.396413,0.326778
-d,triangle,2% TDD,0.256215,0.389865
-t,triangle,5% TDD,0.384392,0.237001
-c,triangle,5% TDD,0.426252,0.287069
-d,triangle,5% TDD,0.189356,0.47593
-t,triangle,9% TDD,0.431498,0.163709
-c,triangle,9% TDD,0.462508,0.217705
-d,triangle,9% TDD,0.105994,0.618586
-t,triangle,14% TDD,0.451532,0.127536
-c,triangle,14% TDD,0.476106,0.180509
-d,triangle,14% TDD,0.072362,0.691955
+t,triangle,2% TDD,0.348177,0.283404
+c,triangle,2% TDD,0.39561,0.327417
+d,triangle,2% TDD,0.256213,0.389179
+t,triangle,5% TDD,0.384616,0.237158
+c,triangle,5% TDD,0.425843,0.286585
+d,triangle,5% TDD,0.189541,0.476257
+t,triangle,9% TDD,0.431554,0.164137
+c,triangle,9% TDD,0.462734,0.217882
+d,triangle,9% TDD,0.105712,0.617981
+t,triangle,14% TDD,0.451309,0.126948
+c,triangle,14% TDD,0.476555,0.180329
+d,triangle,14% TDD,0.072136,0.692723

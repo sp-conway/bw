@@ -172,8 +172,9 @@ if(plot_data){
 }
 
 model_sims_wide_1 %>%
+  mutate(option=factor(option,levels=c("t","c","d"))) %>%
   ggplot(aes(m_prop_worst,m_prop_best))+
-  geom_point(aes(col=option,shape=source))+
+  geom_point(aes(col=option,shape=source),size=2)+
   scale_shape_manual(name="",values=c(4,1)) +
   coord_fixed(xlim=c(0,.8),ylim=c(0,.8))+
   # scale_x_continuous(breaks=c(0,.5,1))+
@@ -186,7 +187,7 @@ model_sims_wide_1 %>%
   labs(x="p(worst)",y="p(best)")+
   facet_grid(distance~.)+
   ggthemes::theme_few()+
-  theme(text=element_text(size=10),
+  theme(text=element_text(size=12),
         legend.spacing.x = unit(0, 'cm'),
         legend.direction = 'horizontal',
         legend.title = element_blank(),
