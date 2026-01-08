@@ -1,4 +1,4 @@
-% Fal  2024
+% Fall 2024
 % bw choice CE exp
 % Sean Conway
 function bw_exp

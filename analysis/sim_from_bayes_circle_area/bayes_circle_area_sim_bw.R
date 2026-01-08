@@ -155,27 +155,39 @@ analyze_data <- function(){
                                              "14% TDD")))
 }
 
-model_sims <- load_and_run_model(N,"triangle",outl = outl,vary_decoy_means=vary_decoy_means) # only simming triangle cond
-model_sims_wide <- model_sims %>%
-  pivot_wider(names_from = type, values_from = p, names_prefix = "m_prop_")  %>%
-  mutate(distance=str_glue("{distance}% TDD"),
-         distance=factor(distance,levels=c("2% TDD",
-                                           "5% TDD",
-                                           "9% TDD",
-                                           "14% TDD")),
-         option=factor(option,levels=c("t","c","d")))
+model_output_file <- here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_{which_model}_{outl}{dec}.csv",
+                                                                                                                        dec=ifelse(vary_decoy_means,"_vary_decoy_means","")))
+if(file_exists(model_output_file)){
+  model_sims_wide <- read_csv(model_output_file)
+}else{
+  model_sims <- load_and_run_model(N,"triangle",outl = outl,vary_decoy_means=vary_decoy_means) # only simming triangle cond
+  model_sims_wide <- model_sims %>%
+    pivot_wider(names_from = type, values_from = p, names_prefix = "m_prop_")  %>%
+    mutate(distance=str_glue("{distance}% TDD"),
+           distance=factor(distance,levels=c("2% TDD",
+                                             "5% TDD",
+                                             "9% TDD",
+                                             "14% TDD")),
+           option=factor(option,levels=c("t","c","d")))
+  write_csv(model_sims_wide,file=model_output_file)
+}
+
 if(plot_data){
   data <- analyze_data()
-  model_sims_wide_1 <- model_sims_wide %>%
+  model_sims_wide <- model_sims_wide %>%
     mutate(source="mtcm") %>%
     bind_rows(data)
 }
 
-model_sims_wide_1 %>%
-  mutate(option=factor(option,levels=c("t","c","d"))) %>%
+model_sims_wide %>%
+  mutate(option=factor(option,levels=c("t","c","d")),
+         distance=factor(distance,levels=c("2% TDD",
+                                           "5% TDD",
+                                           "9% TDD",
+                                           "14% TDD"))) %>%
   ggplot(aes(m_prop_worst,m_prop_best))+
-  geom_point(aes(col=option,shape=source),size=2)+
-  scale_shape_manual(name="",values=c(4,1)) +
+  geom_point(aes(col=option,shape=source),size=3.5)+
+  scale_shape_manual(name="",values=c(1,4)) +
   coord_fixed(xlim=c(0,.8),ylim=c(0,.8))+
   # scale_x_continuous(breaks=c(0,.5,1))+
   # scale_y_continuous(breaks=c(0,.5,1))+
@@ -185,9 +197,9 @@ model_sims_wide_1 %>%
   # annotate("text", x = 0.12, y = 0.7, label = "Model", hjust = 0, size = 5)+
   ggsci::scale_color_startrek(name="")+
   labs(x="p(worst)",y="p(best)")+
-  facet_grid(distance~.)+
+  facet_wrap(vars(distance),nrow=2,ncol=2)+
   ggthemes::theme_few()+
-  theme(text=element_text(size=12),
+  theme(text=element_text(size=22),
         legend.spacing.x = unit(0, 'cm'),
         legend.direction = 'horizontal',
         legend.title = element_blank(),
@@ -195,16 +207,7 @@ model_sims_wide_1 %>%
         legend.key.width = unit(.01,'cm'),
         legend.key.height = unit(.01,'cm'),
         legend.position="inside",
-        legend.position.inside=c(.5,.94))
+        legend.position.inside=c(.25,.91))
 ggsave(filename=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_{which_model}_{outl}{dec}.jpeg",
-                                                                                                  dec=ifelse(vary_decoy_means,"_vary_decoy_means",""))),width=6,height=8)
-write_csv(model_sims_wide, file=here("analysis","sim_from_bayes_circle_area","bayes_circle_area",which_model,glue("bw_preds_{which_model}_{outl}{dec}.csv",
-                                                                                                                  dec=ifelse(vary_decoy_means,"_vary_decoy_means",""))))
-
-model_sims_wide %>%
-  filter(option!="d") %>%
-  select(-m_prop_best) %>%
-  pivot_wider(names_from = option,
-              values_from = m_prop_worst) %>%
-  mutate(diff=c-t)
+                                                                                                  dec=ifelse(vary_decoy_means,"_vary_decoy_means",""))),width=8,height=8)
 
