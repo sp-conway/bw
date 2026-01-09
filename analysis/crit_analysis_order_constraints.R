@@ -7,6 +7,7 @@ library(patchwork)
 library(furrr)
 library(multinomineq)
 
+
 # read in data, only include critical trials, recode bw cond to be more understandable
 d <- here("data","cleaned","bw_all.csv") %>%
   read_csv() %>%
@@ -132,12 +133,20 @@ run_models <- function(data, models, sub_n, distance, M=1e3){
     `ci.95%`=numeric()
   )
   for(m in models){
-    # cat(i,"/",n_models,"\n")
     # browser()
-    prior_count <- count_multinom(k=0,options=c(6), A=m[[1]],b=m[[2]],M=M,progress=F)
-    posterior <- count_multinom(k=data,options=c(6),A=m[[1]], b=m[[2]],
-                                M=M,progress = F)
-    tmp_bf <- count_to_bf(posterior,prior_count)
+    prior_count <- count_multinom(k=0,options=c(6), A=m[[1]],b=m[[2]],M=M,progress=T)
+    x <- 1
+    do_sample <- T
+    if(do_sample){
+      x <- x+1
+      posterior <- count_multinom(k=data,options=c(6),A=m[[1]], b=m[[2]],
+                                  M=M,progress = T)
+      tmp_bf <- count_to_bf(posterior,prior_count)
+      if(all(is.finite(tmp_bf[,1]))|x>5){
+        do_sample <- F
+      }
+    }
+    
     tmp_bf_1 <- as_tibble(tmp_bf) %>%
       mutate(comparison=rownames(tmp_bf),
              model=model_names[i],
@@ -160,6 +169,7 @@ run_models_wrapper <- function(data_all, models, distance_cond, M){
   results <- vector("list",n_subs)
   i <- 1
   for(s in sub_ns){
+    print(distance_cond)
     print(s)
     results[[i]] <- run_models(filter(data_all_filtered,sub_n==s) %>%
                                  select(-c(sub_n,distance)) %>%
@@ -174,9 +184,9 @@ run_models_wrapper <- function(data_all, models, distance_cond, M){
     relocate(c(sub_n,distance,model),.before=everything())
   return(results)
 }
-M <- 1e2 # IMPORTANT - NUMBER OF SAMPLES
+M <- 4e6 # IMPORTANT - NUMBER OF SAMPLES
 
-f <- here("analysis/order_constraints/results/bf.RData")
+f <- here("analysis/order_constraints/results",glue("bf_{M}_samples.RData"))
 if(file_exists(f)){
   load(f)
 }else{
@@ -186,8 +196,12 @@ if(file_exists(f)){
                                                   models, 
                                                   .x, 
                                                   M=M),
-                              .progress = T,
-                              .options = furrr_options(seed = T))
+                              .options = furrr_options(seed = T,stdout=T))
   model_results <- list_rbind(model_results)
   save(model_results, file=f)
 }
+
+model_summaries <- model_results %>% 
+  filter(is.finite(bf) & comparison=="bf_0u") %>%
+  group_by(distance, model) %>%
+  summarise(bf_multipled=sum(log(bf)))
