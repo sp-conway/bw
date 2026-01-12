@@ -39,7 +39,7 @@ CTD=p4
 DTC=p5
 DCT=p6
 
-CTD > TDC > {CDT, TCD} > DTC > DCT
+CTD > TCD > TDC > CDT > DTC > DCT 
 p4 > p2 >{p3, p1}>p5;
 ###p5 > 1-p1-p2-p3-p4-p5;
 -1>-p1-p2-p3-p4-2*p5
@@ -111,3 +111,6 @@ p3 > p5;
 #1-p1-p2-p3-p4-2*p5<.001
 #1<p1+p2+p3+p4+2*p5+.001
 0.99 < p1+p2+p3+p4+2*p5;
+
+Model 6 = weak correlations, agnostic about TCD
+
