@@ -9,10 +9,10 @@
 *rep.RData
 *p_rank.RData
 bw_preds_ordering_sigma_constant_comp_effect_no_outliers.xlsx
-analysis/order_constraints/results/attraction_post_50000_samples.RData
-analysis/order_constraints/results/correlations_1_post_50000_samples.RData
-analysis/order_constraints/results/correlations_2_post_50000_samples.RData
-analysis/order_constraints/results/repulsion_post_50000_samples.RData
+analysis/order_constraints/results/attraction_post_150000_samples.RData
+analysis/order_constraints/results/correlations_1_post_150000_samples.RData
+analysis/order_constraints/results/correlations_2_post_150000_samples.RData
+analysis/order_constraints/results/repulsion_post_150000_samples.RData
 <<<<<<< HEAD
 logit_probit.R
 =======

@@ -247,6 +247,17 @@ for(model_tmp in models){
                    glue("{model_name_tmp}_post_{M}_samples.RData"))
   f_tmp_bf <- path(results_dir,
                 glue("{model_name_tmp}_bf_{M}_samples.RData"))
+  if(!file_exists(f_tmp_post)){
+    plan(multisession, workers=4)
+    model_results_post <-  future_map(c(2,5,9,14),
+                                      ~run_model_post_wrapper(d_order_counts_wide,
+                                                              model_tmp,
+                                                              .x,
+                                                              M=M),
+                                      .options = furrr_options(seed = T,stdout=T))
+    save(model_results_post, file=f_tmp_post)
+    
+  }
   if(!file_exists(f_tmp_bf)){
     plan(multisession, workers=4)
     model_results_bf <-  future_map(c(2,5,9,14),
@@ -258,18 +269,6 @@ for(model_tmp in models){
     model_results_bf <- list_rbind(model_results_bf)
     save(model_results_bf, file=f_tmp_bf)
   }
-  
-  # if(!file_exists(f_tmp_post)){
-  #   plan(multisession, workers=4)
-  #   model_results_post <-  future_map(c(2,5,9,14),
-  #                                  ~run_model_post_wrapper(d_order_counts_wide,
-  #                                                        model_tmp, 
-  #                                                        .x, 
-  #                                                        M=M),
-  #                                  .options = furrr_options(seed = T,stdout=T))
-  #   save(model_results_post, file=f_tmp_post)
-  #   
-  #  }
 }
 
 # 
@@ -287,31 +286,31 @@ model_results_all_bf <- map(models_all_bf, load_results_bf) %>%
   # ))
 
 
-# load_results_post <- function(f){
-#   load(f)
-#   n_distance <- 4
-#   n_subs <- 369
-#   res <- tibble(sub_n=numeric(),
-#                 model=character(),
-#                 distance=numeric(),
-#                 obs=numeric(),
-#                 pred=numeric(),
-#                 ppp=numeric())
-#   for(i in 1:n_distance){
-#     print(i)
-#     for(j in 1:n_subs){
-#       res <- bind_rows(res,
-#                        model_results_post[[i]][[j]][[2]]
-#       )
-#     }
-#   }
-#   return(res)
-# }
-# models_all_post <- results_dir %>%
-#   dir_ls(regexp="post")
-# model_results_all_post <- map(models_all_post, load_results_post) %>%
-#   list_rbind()
-# save(model_results_all_post,file=path(results_dir, glue("post_{M}_samples_clean.RData")))
+load_results_post <- function(f){
+  load(f)
+  n_distance <- 4
+  n_subs <- 369
+  res <- tibble(sub_n=numeric(),
+                model=character(),
+                distance=numeric(),
+                obs=numeric(),
+                pred=numeric(),
+                ppp=numeric())
+  for(i in 1:n_distance){
+    print(i)
+    for(j in 1:n_subs){
+      res <- bind_rows(res,
+                       model_results_post[[i]][[j]][[2]]
+      )
+    }
+  }
+  return(res)
+}
+models_all_post <- results_dir %>%
+  dir_ls(regexp="post")
+model_results_all_post <- map(models_all_post, load_results_post) %>%
+  list_rbind()
+save(model_results_all_post,file=path(results_dir, glue("post_{M}_samples_clean.RData")))
 load(path(results_dir, glue("post_{M}_samples_clean.RData")))
 
 model_results_0u <- model_results_all_bf %>%
