@@ -382,34 +382,3 @@ p_data <- map(list(2,5,9,14),
 p_data[[1]]+p_data[[2]]+p_data[[3]]+p_data[[4]]+plot_layout(ncol=1,axis_titles = "collect")
 ggsave(filename = here("analysis/plots/crit_ordering_data.jpeg"),width=4,height=8)
 
-# multinomial modeling ======================================================================
-V_cors_est <- here("analysis/sim_from_bayes_circle_area/bayes_circle_area/sigma_constant_comp_effect/bw_preds_ordering_sigma_constant_comp_effect_no_outliers_const_tc_vary_decoy_means_V_rep.xlsx") %>%
-  readxl::read_excel() %>%
-  as.matrix()
-
-do_bf_unconstrained <- function(dat, subject, dist, V){
-  print(subject)
-  d_test <- dat %>%
-    filter(sub_n==subject & distance==dist) 
-  d_test_choices <- c(d_test$ctd,
-                      d_test$tdc,
-                      d_test$cdt,
-                      d_test$tcd,
-                      d_test$dtc,
-                      d_test$dct)
-  bf_test <- bf_multinom(k=d_test_choices,V=V,options=c(6),M=10000)
-  return(bf_test)
-}
-d_sub_order_wide <- d_sub_order %>%
-  select(-prop) %>%
-  pivot_wider(names_from = order, values_from = N, values_fill = 0) %>%
-  mutate(N_total=tcd+ctd+tdc+cdt+dtc+dct)
-# sub_ns <- unique(d_sub_order$sub_n)
-# n_subs <- length(sub_ns)
-# bf_test <- vector("list",n_subs)
-# for(s in 1:n_subs){
-#   bf_test[[s]] <- do_bf_unconstrained(d_sub_order_wide, sub_ns[s], 2, V_cors_est)
-# }
-
-
-range(d_sub_order_wide$N_total)

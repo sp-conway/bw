@@ -5,6 +5,7 @@ library(glue)
 library(fs)
 library(patchwork)
 library(furrr)
+library(scales)
 library(multinomineq)
 
 results_dir <- here("analysis/order_constraints/results/")
@@ -72,7 +73,7 @@ d_order_props <- d_order %>%
   group_by(sub_n,distance) %>%
   mutate(prop=n/sum(n)) %>%
   ungroup() 
-  
+
 d_order_counts_wide <- d_order_props %>%
   arrange(sub_n,distance) %>%
   select(-prop) %>%
@@ -89,15 +90,15 @@ read_model_B <- function(f, skip, nlines){
   return(m)
 }
 
-corr_1_A <- read_model_A(here("analysis/order_constraints/correlations_1.txt"),
-                              skip=2,nlines=7)
-corr_1_B <- read_model_B(here("analysis/order_constraints/correlations_1.txt"),
-                              skip=10,nlines=7)
+corr_weak_A <- read_model_A(here("analysis/order_constraints/correlations_weak.txt"),
+                         skip=2,nlines=7)
+corr_weak_B <- read_model_B(here("analysis/order_constraints/correlations_weak.txt"),
+                         skip=10,nlines=7)
 
-corr_2_A <- read_model_A(here("analysis/order_constraints/correlations_2.txt"),
-                            skip=2,nlines=8)
-corr_2_B <- read_model_B(here("analysis/order_constraints/correlations_2.txt"),
-                            skip=11,nlines=8)
+corr_strong_A <- read_model_A(here("analysis/order_constraints/correlations_strong.txt"),
+                         skip=2,nlines=7)
+corr_strong_B <- read_model_B(here("analysis/order_constraints/correlations_strong.txt"),
+                         skip=10,nlines=7)
 
 repulsion_A <- read_model_A(here("analysis/order_constraints/repulsion.txt"),
                             skip=2,nlines=6)
@@ -107,7 +108,7 @@ repulsion_B <- read_model_B(here("analysis/order_constraints/repulsion.txt"),
 attraction_A <- read_model_A(here("analysis/order_constraints/attraction.txt"),
                              skip=2,nlines=7)
 attraction_B <- read_model_B(here("analysis/order_constraints/attraction.txt"),
-                            skip=10,nlines=7)
+                             skip=10,nlines=7)
 
 # null_A <- read_model_A(here("analysis/order_constraints/null.txt"),
 #                        skip=2,nlines=15)
@@ -115,12 +116,12 @@ attraction_B <- read_model_B(here("analysis/order_constraints/attraction.txt"),
 #                        skip=18,nlines=15)
 
 models <- list(
-  list(corr_1_A,
-       corr_1_B,
-       "correlations_1"),
-  list(corr_2_A,
-       corr_2_B,
-       "correlations_2"),
+  list(corr_weak_A,
+       corr_weak_B,
+       "correlations_weak"),
+  list(corr_strong_A,
+       corr_strong_B,
+       "correlations_strong"),
   list(attraction_A,
        attraction_B,
        "attraction"),
@@ -170,12 +171,12 @@ run_model_bf_wrapper <- function(data_all, model, distance_cond, M=1e3){
     print(distance_cond)
     print(s)
     results[[i]] <- run_model_bf(filter(data_all_filtered,sub_n==s) %>%
-                                 select(-c(sub_n,distance)) %>%
-                                 unlist(as.vector(.)),
-                               model=model,
-                               sub_n=s,
-                               distance=distance_cond,
-                               M=M)
+                                   select(-c(sub_n,distance)) %>%
+                                   unlist(as.vector(.)),
+                                 model=model,
+                                 sub_n=s,
+                                 distance=distance_cond,
+                                 M=M)
     i <- i+1
   }
   results <- list_rbind(results) %>%
@@ -212,12 +213,12 @@ run_model_post_wrapper <- function(data_all, model, distance_cond, M=1e3){
     print(distance_cond)
     print(s)
     results[[i]] <- run_model_post(filter(data_all_filtered,sub_n==s) %>%
-                                select(-c(sub_n,distance)) %>%
-                                unlist(as.vector(.)),
-                              model=model,
-                              sub_n=s,
-                              distance=distance_cond,
-                              M=M)
+                                     select(-c(sub_n,distance)) %>%
+                                     unlist(as.vector(.)),
+                                   model=model,
+                                   sub_n=s,
+                                   distance=distance_cond,
+                                   M=M)
     i <- i+1
   }
   # results <- list_rbind(results) %>%
@@ -241,38 +242,41 @@ run_model_post_wrapper <- function(data_all, model, distance_cond, M=1e3){
 # run analyses ============================================================================================================================================================
 
 for(model_tmp in models){
-  M <- 50000 # IMPORTANT - NUMBER OF SAMPLES
+  M <- 150000 # IMPORTANT - NUMBER OF SAMPLES
   model_name_tmp <- model_tmp[[3]]
   f_tmp_post <- path(results_dir,
-                   glue("{model_name_tmp}_post_{M}_samples.RData"))
+                     glue("{model_name_tmp}_post_{M}_samples.RData"))
+  f_tmp_post_clean <- path(results_dir, glue("post_{M}_samples_clean_ineq.RData"))
+  
   f_tmp_bf <- path(results_dir,
-                glue("{model_name_tmp}_bf_{M}_samples.RData"))
+                   glue("{model_name_tmp}_bf_{M}_samples.RData"))
   if(!file_exists(f_tmp_bf)){
+    print("do bf")
     plan(multisession, workers=4)
     model_results_bf <-  future_map(c(2,5,9,14),
-                                ~run_model_bf_wrapper(d_order_counts_wide,
-                                                    model_tmp, 
-                                                    .x, 
-                                                    M=M),
-                                .options = furrr_options(seed = T,stdout=T))
+                                    ~run_model_bf_wrapper(d_order_counts_wide,
+                                                          model_tmp, 
+                                                          .x, 
+                                                          M=M),
+                                    .options = furrr_options(seed = T,stdout=T))
     model_results_bf <- list_rbind(model_results_bf)
     save(model_results_bf, file=f_tmp_bf)
   }
   
-  if(!file_exists(f_tmp_post)){
+  if(!file_exists(f_tmp_post_clean)){
+    print("do post")
     plan(multisession, workers=4)
     model_results_post <-  future_map(c(2,5,9,14),
-                                   ~run_model_post_wrapper(d_order_counts_wide,
-                                                         model_tmp, 
-                                                         .x, 
-                                                         M=M),
-                                   .options = furrr_options(seed = T,stdout=T))
+                                      ~run_model_post_wrapper(d_order_counts_wide,
+                                                              model_tmp, 
+                                                              .x, 
+                                                              M=M),
+                                      .options = furrr_options(seed = T,stdout=T))
     save(model_results_post, file=f_tmp_post)
     
-   }
+  }
 }
 
-f_tmp_post_clean <- path(results_dir, glue("post_{M}_samples_clean_ineq.RData"))
 load_results_post <- function(f){
   load(f)
   n_distance <- 4
@@ -301,10 +305,11 @@ if(!file_exists(f_tmp_post_clean)){
   save(model_results_all_post,file=f_tmp_post_clean)
   f_delete <- dir_ls(path(results_dir),regexp=glue("post_{M}_samples.RData"))
   for(f in f_delete) try(file_delete(f_delete))
+}else{
+  load(f_tmp_post_clean)
 }
 
 
-# 
 load_results_bf <- function(f){
   load(f)
   return(model_results_bf)
@@ -313,23 +318,31 @@ models_all_bf <- results_dir %>%
   dir_ls(regexp="bf")
 model_results_all_bf <- map(models_all_bf, load_results_bf) %>%
   list_rbind() %>%
-  mutate(bf=case_when(
-    !is.finite(bf)~median(c(`ci.5%`,`ci.95%`)),
-    T~bf
-  ))
+  filter(comparison=="bf_0u")#%>%
+  # mutate(bf=case_when(
+  #   !is.finite(bf)~median(c(`ci.5%`,`ci.95%`)),
+  #   T~bf
+  # ))
 
-
-#   
-model_results_0u <- model_results_all_bf %>%
-  filter( comparison=="bf_0u" & is.finite(bf)) 
-model_results_0u_with_data <- model_results_0u %>%
-  filter(is.finite(bf) & comparison=="bf_0u") %>%
+model_results_all_post_bf_data <- left_join(model_results_all_post,
+                                       model_results_all_bf) %>%
   left_join(d_order_counts_wide)
-# 
-model_counts <- model_results_0u %>%
+
+model_results_all_post_bf_data
+
+model_results_all_bf_max <- model_results_all_post_bf_data %>%
   group_by(sub_n,distance) %>%
   mutate(max_bf=max(bf)) %>%
   filter(bf==max(bf)) %>%
+  ungroup() %>%
+  mutate(reject=ppp<.0125) %>%
+  left_join(model_results_all_post)
+model_results_all_bf_max %>%
+  group_by(distance) %>%
+  summarise(n_not_reject=sum(!reject))
+
+model_counts_not_reject <- model_results_all_bf_max %>%
+  filter(!reject) %>%
   group_by(model,distance) %>%
   summarise(n=n()) %>%
   ungroup() %>%
@@ -340,11 +353,11 @@ model_counts <- model_results_0u %>%
   mutate(distance=str_glue("{distance}% TDD"),
          distance=factor(distance,
                          levels=c("2% TDD",
-                         "5% TDD",
-                         "9% TDD",
-                         "14% TDD")))
+                                  "5% TDD",
+                                  "9% TDD",
+                                  "14% TDD")))
 
-model_counts %>%
+model_counts_not_reject %>%
   arrange(distance, model) %>%
   ggplot(aes(model,n))+
   geom_col(position="dodge",fill="lightblue")+
@@ -353,43 +366,73 @@ model_counts %>%
   facet_wrap(vars(distance),nrow=2)+
   ggthemes::theme_few()+
   theme(text=element_text(size=14))
-ggsave(filename = path(results_dir,glue("bf_counts_{M}_samples.jpeg")),
+ggsave(filename = path(results_dir,glue("bf_counts_{M}_samples_not_reject.jpeg")),
        width=5,height=5)
 # 
-model_summaries <- model_results_0u %>%
+model_summaries_not_reject <- model_results_all_bf_max %>%
+  filter(!reject) %>%
   mutate(distance=str_glue("{distance}% TDD"),
          distance=factor(distance,
                          levels=c("2% TDD",
                                   "5% TDD",
                                   "9% TDD",
                                   "14% TDD"))) %>%
-  mutate(bf=case_when(
-    bf==0~median(c(`ci.5%`,`ci.95%`)),
-    T~bf
-  )) %>%
+  # mutate(bf=case_when(
+  #   bf==0~median(c(`ci.5%`,`ci.95%`)),
+  #   T~bf
+  # )) %>%
   group_by(distance, model) %>%
   summarise(bf_joint_log10=sum(log10(bf))) %>%
   ungroup() %>%
   arrange(distance,model,desc(bf_joint_log10))
-model_summaries
-model_summaries$bf_joint_log10
-model_summaries %>%
+
+model_summaries_not_reject %>%
   ggplot(aes(model,bf_joint_log10))+
   geom_col(position="dodge",fill="lightblue",width=.75)+
   geom_hline(yintercept=0,alpha=.85,linetype="dashed")+
+  scale_x_log10()+
   labs(x="model",y="log10 joint bayes factor")+
   coord_flip()+
-  facet_grid(distance~.)+
+  facet_wrap(vars(distance),nrow=2)+
   ggthemes::theme_few()+
   theme(text=element_text(size=14))
-ggsave(filename = path(results_dir,glue("bf_joint_log10_{M}_samples.jpeg")),
+ggsave(filename = path(results_dir,glue("bf_joint_log10_{M}_samples_not_reject.jpeg")),
        width=5,height=7)
 
 
-model_results_all_post %>%
-  left_join(model_results_all_bf) %>%
+model_results_all_bf_max %>%
   ggplot(aes(bf,ppp))+
   geom_point(alpha=.5)+
-  geom_hline(yintercept=.05,linetype="dashed",col="red")+
+  geom_hline(yintercept=.0125,linetype="dashed",col="red")+
   facet_wrap(vars(distance))+
   ggthemes::theme_few()
+
+# data points where all models rejected
+data_all_models_rejected <- model_results_all_post_bf_data %>%
+  group_by(sub_n,distance) %>%
+  mutate(max_bf=max(bf)) %>%
+  filter(bf==max(bf)) %>%
+  ungroup() %>%
+  mutate(reject=ppp<.0125) %>%
+  filter(reject) %>%
+  select(sub_n,distance,tcd,tdc,cdt,ctd,dct,dtc) %>%
+  pivot_longer(-c(sub_n,distance),names_to = "order", values_to = "n") %>%
+  group_by(sub_n,distance) %>%
+  mutate(prop=n/sum(n)) %>%
+  ungroup() %>%
+  mutate(order=factor(order,levels=order_levels))
+
+
+ggplot(data_all_models_rejected, aes(order,prop,group=sub_n))+
+  geom_path(col="grey",alpha=.5)+
+  # scale_y_continuous(limits=c(0,.75),breaks=seq(0,.75,.25))+
+  facet_grid(distance~.)+
+  ggsci::scale_color_d3()+
+  ggthemes::theme_few()+
+  theme(plot.title=element_text(hjust=0.5,size=10),
+        text=element_text(size=12))
+
+
+model_results_all_bf_max %>%
+  group_by(distance,reject) %>%
+  summarise(N=n())
