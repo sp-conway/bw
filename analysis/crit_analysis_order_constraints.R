@@ -95,10 +95,20 @@ corr_weak_A <- read_model_A(here("analysis/order_constraints/correlations_weak.t
 corr_weak_B <- read_model_B(here("analysis/order_constraints/correlations_weak.txt"),
                          skip=10,nlines=7)
 
+corr_weak_nonmonotonic_A <- read_model_A(here("analysis/order_constraints/correlations_weak_nonmonotonic.txt"),
+                            skip=2,nlines=7)
+corr_weak_nonmonotonic_B <- read_model_B(here("analysis/order_constraints/correlations_weak_nonmonotonic.txt"),
+                            skip=10,nlines=7)
+
 corr_strong_A <- read_model_A(here("analysis/order_constraints/correlations_strong.txt"),
                          skip=2,nlines=7)
 corr_strong_B <- read_model_B(here("analysis/order_constraints/correlations_strong.txt"),
                          skip=10,nlines=7)
+
+corr_strong_nonmonotonic_A <- read_model_A(here("analysis/order_constraints/correlations_strong_nonmonotonic.txt"),
+                              skip=2,nlines=7)
+corr_strong_nonmonotonic_B <- read_model_B(here("analysis/order_constraints/correlations_strong_nonmonotonic.txt"),
+                              skip=10,nlines=7)
 
 repulsion_A <- read_model_A(here("analysis/order_constraints/repulsion.txt"),
                             skip=2,nlines=6)
@@ -119,9 +129,15 @@ models <- list(
   list(corr_weak_A,
        corr_weak_B,
        "correlations_weak"),
+  list(corr_weak_nonmonotonic_A,
+       corr_weak_nonmonotonic_B,
+       "correlations_weak_nonmonotonic"),
   list(corr_strong_A,
        corr_strong_B,
        "correlations_strong"),
+  list(corr_strong_nonmonotonic_A,
+       corr_strong_nonmonotonic_B,
+       "correlations_strong_nonmonotonic"),
   list(attraction_A,
        attraction_B,
        "attraction"),
@@ -242,7 +258,7 @@ run_model_post_wrapper <- function(data_all, model, distance_cond, M=1e3){
 # run analyses ============================================================================================================================================================
 
 for(model_tmp in models){
-  M <- 150000 # IMPORTANT - NUMBER OF SAMPLES
+  M <- 5e5 # IMPORTANT - NUMBER OF SAMPLES
   model_name_tmp <- model_tmp[[3]]
   f_tmp_post <- path(results_dir,
                      glue("{model_name_tmp}_post_{M}_samples.RData"))

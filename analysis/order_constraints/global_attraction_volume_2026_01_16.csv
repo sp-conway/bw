@@ -1,0 +1,4 @@
+"","Model","Algorithm","Volume","Dimensionality"
+"1","global_attraction","Cooling Bodies",0.00766768866654735,"Full-dimensional"
+"3","global_attraction","Cooling Gaussian",0.00701603613626078,"Full-dimensional"
+"2","global_attraction","Sequence of Balls",0.00786681055406322,"Full-dimensional"
