@@ -162,14 +162,14 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
     prior_count <- count_multinom(k=0,options=c(6), A=model[[1]],b=model[[2]],M=M,progress=T)
     posterior <- count_multinom(k=data,options=c(6),A=model[[1]], b=model[[2]],
                                 M=M,progress = T)
-    if(posterior[1,1]!=0 & is.finite(posterior[1,1])){
-      tmp_bf <- count_to_bf(posterior,prior_count)
+    tmp_bf <- count_to_bf(posterior,prior_count)
+    if(tmp_bf['bf_0u',1]!=0 & is.finite(tmp_bf['bf_0u',1])){
       do_sample <- F
-    }else if(M>15e6){
+    }else if(M>100e6){
       do_sample <- F
     }else{
       print("re-sampling")
-      M <- M+5e5
+      M <- M+10e5
     }
   }
   results <- tibble(
@@ -276,10 +276,10 @@ run_model_post_wrapper <- function(data_all, model, distance_cond, M=1e3){
 #                        sub_n=22,distance=2)
 # run analyses ============================================================================================================================================================
 
-do_post <- F # This will create a massive file, so I only do it once per model
 for(model_tmp in models){
-  M_init <- 2.5e5 # IMPORTANT - NUMBER OF SAMPLES
+  M_init <- 3e5 # IMPORTANT - NUMBER OF SAMPLES
   model_name_tmp <- model_tmp[[3]]
+  print(model_name_tmp)
   f_tmp_bf <- path(results_dir,
                    glue("{model_name_tmp}_bf_{M_init}_samples.RData"))
   f_tmp_post <- path(results_dir,
@@ -305,7 +305,7 @@ for(model_tmp in models){
                                                               model_tmp, 
                                                               .x, 
                                                               M=M_init),
-                                      .options = furrr_options(seed = T,stdout=T))
+                                      .options = furrr_options(seed=T,stdout=T))
     save(model_results_post, file=f_tmp_post)
   }
 }
