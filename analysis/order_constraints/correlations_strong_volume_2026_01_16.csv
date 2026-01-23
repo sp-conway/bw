@@ -1,4 +1,4 @@
 "","Model","Algorithm","Volume","Dimensionality"
-"1","correlations_strong","Cooling Bodies",0.00867382650525365,"Full-dimensional"
-"3","correlations_strong","Cooling Gaussian",0.00593833856905992,"Full-dimensional"
-"2","correlations_strong","Sequence of Balls",0.00855741981066757,"Full-dimensional"
+"1","correlations_strong_nonmonotonic","Cooling Bodies",0.00420393857037268,"Full-dimensional"
+"3","correlations_strong_nonmonotonic","Cooling Gaussian",0.00324587273722788,"Full-dimensional"
+"2","correlations_strong_nonmonotonic","Sequence of Balls",0.0040653743811107,"Full-dimensional"
