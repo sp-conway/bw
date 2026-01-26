@@ -141,15 +141,15 @@ models <- list(
   list(repulsion_A,
        repulsion_B,
        "repulsion"),
-  list(null_A,
-       null_B,
-       "null"),
   list(attraction_strong_A,
        attraction_strong_B,
        "attraction_strong"),
   list(repulsion_strong_A,
        repulsion_strong_B,
-       "repulsion_strong")
+       "repulsion_strong"),
+  list(null_A,
+       null_B,
+       "null")
 )
 
 run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
@@ -165,11 +165,12 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
     tmp_bf <- count_to_bf(posterior,prior_count)
     if(tmp_bf['bf_0u',1]!=0 & is.finite(tmp_bf['bf_0u',1])){
       do_sample <- F
-    }else if(M>100e6){
+    }else if(M==5e6){
       do_sample <- F
     }else{
       print("re-sampling")
-      M <- M+10e5
+      # M <- M+10e5
+      M <- 5e6
     }
   }
   results <- tibble(
