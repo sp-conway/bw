@@ -1,0 +1,12 @@
+Loading r-rocker-ml-verse version 4.4.0+apptainer
+Loading apptainer version latest
+
+No apptainer cache directory found. To prevent apptainer from filling up your
+home directory, you can create a new directory at
+`/work/pi_<your_pi_name>/.apptainer/cache` and reload the module. 
+Installing package into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+Warning in install.packages("multinomineq") :
+  'lib = "/usr/local/lib/R/site-library"' is not writable
+Error in install.packages("multinomineq") : unable to install packages
+Execution halted
