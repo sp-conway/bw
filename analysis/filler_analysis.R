@@ -21,11 +21,13 @@ prop_corr_by_cond_sub <- d %>%
 m_prop_corr_by_cond <- prop_corr_by_cond_sub %>%
   pivot_longer(contains("prop"),values_to = "prop") %>%
   group_by(name,bw_cond) %>%
-  summarise(m=mean(prop),
-            ci_lower=m-qt(.975,n()-1)*(sd(prop)/sqrt(n())),
-            ci_upper=m+qt(.975,n()-1)*(sd(prop)/sqrt(n()))) %>%
+  summarise(m=mean(prop*100),
+            s=sd(prop*100),
+            ci_lower=m-qt(.975,n()-1)*(s/sqrt(n())),
+            ci_upper=m+qt(.975,n()-1)*(s/sqrt(n()))) %>%
   ungroup() %>%
   mutate(name=factor(name,levels=c("prop_best","prop_worst","prop_both")))
+m_prop_corr_by_cond
 
 m_prop_corr_by_cond %>%
   mutate(name=factor(name,levels=c("prop_best","prop_worst","prop_both"))) %>%
@@ -33,14 +35,13 @@ m_prop_corr_by_cond %>%
   geom_col(position=position_dodge(width=.9),width=.75,)+
   geom_point(data=left_join(pivot_longer(prop_corr_by_cond_sub,contains("prop")), # join to subject correct
                             distinct(d,sub_n,bw_cond)),
-             aes(name,value),alpha=.1,shape=20,
+             aes(name,value*100),alpha=.1,shape=20,
              position = position_dodge(width = 0.9))+
   geom_errorbar(aes(ymin=ci_lower,ymax=ci_upper),position=position_dodge(.9),width=.25)+
   ggsci::scale_fill_d3(name="condition",labels=c("best-worst","worst-best"))+
   scale_x_discrete(labels=c("prop_best"="best correct","prop_worst"="worst correct","prop_both"="both correct"))+
-  labs(x="which choice",y="mean proportion")+ 
+  labs(x="",y="mean proportion")+ 
   ggthemes::theme_few()
-ggsave(filename=here("analysis","plots","filler_prop_correct_means.jpeg"),width=6,height=4)
 
 # mean prop correct collapsed across condition 
 options(pillar.sigfig=5)
@@ -49,8 +50,10 @@ d %>%
                  choice_worst_correct,
                  both_correct)) %>%
   group_by(name) %>%
-  summarise(m=100*mean(value),
-            s=100*sd(value))
+  summarise(m=mean(value*100),
+            s=sd(value*100),
+            ci_lower=m-qt(.975,n()-1)*(s/sqrt(n())),
+            ci_upper=m+qt(.975,n()-1)*(s/sqrt(n())))
 # rts ================================================================================
 d %>%
   pivot_longer(contains("rt")) %>%
@@ -65,4 +68,3 @@ d %>%
   theme(legend.position="inside",
         legend.key.size = unit(5,units = "mm"),
         legend.position.inside = c(.38,.9))
-ggsave(filename=here("analysis","plots","filler_rt_hists.jpeg"),width=6,height=5)
