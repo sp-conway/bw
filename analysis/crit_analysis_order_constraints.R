@@ -8,6 +8,10 @@ library(furrr)
 library(scales)
 library(multinomineq)
 
+# whether or not to do parallel
+do_parallel_bf <- F
+do_parallel_post <- F
+
 results_dir <- here("analysis/order_constraints/results/")
 
 # read in data, only include critical trials, recode bw cond to be more understandable
@@ -126,9 +130,9 @@ models <- list(
   list(nonmonotonic_repulsion_A,
        nonmonotonic_repulsion_B,
        "non-monotonic_repulsion"),
-  list(nonmonotonic_repulsion_strong_A,
-       nonmonotonic_repulsion_strong_B,
-       "non-monotonic_repulsion_strong"),
+  # list(nonmonotonic_repulsion_strong_A,
+  #      nonmonotonic_repulsion_strong_B,
+  #      "non-monotonic_repulsion_strong"),
   list(nonmonotonic_attraction_A,
        nonmonotonic_attraction_B,
        "non-monotonic_attraction"),
@@ -138,29 +142,42 @@ models <- list(
 )
 
 run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
+  
   M <- M_init
+  # Number of options always 6
   options <- c(6) # always 6
+  
+  # name of model we are running
   model_name <- model[[3]]
   
-  # prior_count <- count_multinom(k=0,options=c(6), A=model[[1]],b=model[[2]],M=M,progress=T)
-  # posterior <- count_multinom(k=data,options=c(6),A=model[[1]], b=model[[2]],
-  #                             M=M,progress = T)
-  # tmp_bf <- count_to_bf(posterior,prior_count)
+  # limit of number of samples taken from posterior. just to avoid computer overload. hopefully won't need it
+  samp_limit <- 5e8
   
-  # for increasing sample size if BF=0 or +-Infinity
-  do_sample <- T
-  while(do_sample){
-    prior_count <- count_multinom(k=0,options=c(6), A=model[[1]],b=model[[2]],M=M,progress=T)
-    posterior <- count_multinom(k=data,options=c(6),A=model[[1]], b=model[[2]],
-                                M=M,progress = T)
-    tmp_bf <- count_to_bf(posterior,prior_count)
-    if(tmp_bf['bf_0u',1]!=0 & is.finite(tmp_bf['bf_0u',1])){
-      do_sample <- F
-    }else if(M==5e7){
-      do_sample <- F
-    }else{
-      print("re-sampling")
-      M <- M+5e5
+  # sample from the prior
+  prior_count <- count_multinom(k=0,options=c(6), A=model[[1]],b=model[[2]],M=M,progress = T)
+  
+  # initial sample from the posterior
+  posterior <- count_multinom(k=data,options=c(6),A=model[[1]], b=model[[2]],
+                              M=M,progress = T)
+  
+  # find bayes factor and check if not finite or if =0
+  tmp_bf <- count_to_bf(posterior,prior_count)
+  if(tmp_bf['bf_0u',1]==0 | !is.finite(tmp_bf['bf_0u',1])){ # re-sample as needed
+    M <- 10e6
+    do_sample <- T
+    while(do_sample){
+      # print("re-sampling")
+      posterior <- count_multinom(k=data,options=c(6),A=model[[1]], b=model[[2]],
+                                  M=M,progress = T)
+      tmp_bf <- count_to_bf(posterior,prior_count)
+      if(tmp_bf['bf_0u',1]!=0 & is.finite(tmp_bf['bf_0u',1])){
+        do_sample <- F
+      }else if(M_resample==samp_limit){
+        print("hit sample limit")
+        do_sample <- F
+      }else{
+        M <- M+5e6
+      }
     }
   }
   results <- tibble(
@@ -186,28 +203,35 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
   return(results)
 }
 
-run_model_bf_wrapper <- function(data_all, model, distance_cond, M_init=1e3){
+run_model_bf_wrapper <- function(data_all, model_current, distance_cond, results_file, M_init=1e3){
   sub_ns <- unique(data_all$sub_n)
   n_subs <- length(sub_ns)
   data_all_filtered <- data_all %>%
     filter(distance==distance_cond)
-  results <- vector("list",n_subs)
   i <- 1
+  results_df <- read.csv(results_file)
+  # browser()
   for(s in sub_ns){
-    print(distance_cond)
-    print(s)
-    results[[i]] <- run_model_bf(filter(data_all_filtered,sub_n==s) %>%
-                                   select(-c(sub_n,distance)) %>%
-                                   unlist(as.vector(.)),
-                                 model=model,
-                                 sub_n=s,
-                                 distance=distance_cond,
-                                 M_init=M_init)
+    tmp <- results_df %>%
+      filter(sub_n==s &
+             distance==distance_cond &
+             model==model_current[[3]])
+    if(nrow(tmp)==0){
+      cat(distance_cond,"% Distance","\n")
+      cat(i,"/",n_subs," Subjects\n")
+      results_tmp <- run_model_bf(filter(data_all_filtered,sub_n==s) %>%
+                                     select(-c(sub_n,distance)) %>%
+                                     unlist(as.vector(.)),
+                                   model=model_current,
+                                   sub_n=s,
+                                   distance=distance_cond,
+                                   M_init=M_init)
+      write_csv(results_tmp,
+                file=results_file,
+                append=T)
+    }
     i <- i+1
   }
-  results <- list_rbind(results) %>%
-    relocate(c(sub_n,distance,model),.before=everything())
-  return(results)
 }
 
 
@@ -235,28 +259,34 @@ run_model_post <- function(data, model, sub_n, distance, M=1e3){
   return(results)
 }
 
-run_model_post_wrapper <- function(data_all, model, distance_cond, M=1e3){
+run_model_post_wrapper <- function(data_all, model_current, distance_cond, results_file, M=1e3){
   sub_ns <- unique(data_all$sub_n)
   n_subs <- length(sub_ns)
   data_all_filtered <- data_all %>%
     filter(distance==distance_cond)
-  results <- vector("list",n_subs)
+  results_df <- read.csv(results_file)
   i <- 1
   for(s in sub_ns){
-    print(distance_cond)
-    print(s)
-    results[[i]] <- run_model_post(filter(data_all_filtered,sub_n==s) %>%
-                                     select(-c(sub_n,distance)) %>%
-                                     unlist(as.vector(.)),
-                                   model=model,
-                                   sub_n=s,
-                                   distance=distance_cond,
-                                   M=M)
+    cat(distance_cond,"% Distance","\n")
+    cat(i,"/",n_subs," Subjects\n")
+    tmp <- results_df %>%
+      filter(sub_n==s &
+               distance==distance_cond &
+               model==model_current[[3]])
+    if(nrow(tmp)==0){
+      results_tmp <- run_model_post(filter(data_all_filtered,sub_n==s) %>%
+                                      select(-c(sub_n,distance)) %>%
+                                      unlist(as.vector(.)),
+                                    model=model_current,
+                                    sub_n=s,
+                                    distance=distance_cond,
+                                    M=M)
+      write_csv(results_tmp,
+                file=results_file,
+                append=T)
+    }
     i <- i+1
   }
-  results <- list_rbind(results) %>%
-    relocate(c(sub_n,distance,model),.before=everything())
-  return(results)
 }
 
 # testing ================================================================================================================================================
@@ -276,36 +306,75 @@ run_model_post_wrapper <- function(data_all, model, distance_cond, M=1e3){
 # IMPORTANT - NUMBER OF SAMPLES 
 M_init_post <- 50000 # need a lot less for posterior distributions, if p=0 it's okay
 M_init_bf <- 500000
+
+results_file_bf <- path(results_dir,"bf.csv")
+if(!file_exists(results_file_bf)){
+  tmp_bf <- tibble(
+    model=character(),
+    comparison=character(),
+    bf=numeric(),
+    se=numeric(),
+    `ci.5%`=numeric(),
+    `ci.95%`=numeric(),
+    M=numeric(),
+    prop_inside=numeric(),
+    prop_inside_se=numeric(),
+    distance=numeric(),
+    sub_n=numeric(),
+  )
+  write_csv(tmp_bf, file=results_file_bf)
+}
+
+results_file_post <- path(results_dir,"post.csv")
+if(!file_exists(results_file_post)){
+  tmp_post <- tibble(
+    sub_n=numeric(),
+    distance=numeric(),
+    model=character(),
+    obs=numeric(),
+    pred=numeric(),
+    ppp=numeric()
+  )
+  write_csv(tmp_post, file=results_file_post)
+}
+
+
 for(model_tmp in models){
   
   model_name_tmp <- model_tmp[[3]]
-  f_tmp_bf <- path(results_dir,
-                   glue("{model_name_tmp}_bf_{M_init_bf}_samples.RData"))
-  f_tmp_post <- path(results_dir,
-                     glue("{model_name_tmp}_posterior_{M_init_post}_samples.RData"))
-  if(!file_exists(f_tmp_bf)){
-    print(paste("Sampling Bayes Factor for model:",model_name_tmp))
-    plan(multisession, workers=4)
-    model_results_bf <-  future_map(c(2,5,9,14),
-                                    ~run_model_bf_wrapper(d_order_counts_wide,
-                                                          model_tmp,
-                                                          .x,
-                                                          M=M_init_bf),
-                                    .options = furrr_options(seed = T,stdout=T))
-    model_results_bf <- list_rbind(model_results_bf)
-    save(model_results_bf, file=f_tmp_bf)
-  }
-  if(!file_exists(f_tmp_post)){
+  if(do_parallel_bf){
+      plan(multisession, workers=4)
+      future_map(c(2,5,9,14),~run_model_bf_wrapper(d_order_counts_wide,
+                                                            model_tmp,
+                                                            .x,
+                                                            results_file=results_file_bf,
+                                                            M=M_init_bf),
+                                      .options = furrr_options(seed = T,stdout=T))
+    }else{
+      map(c(2,5,9,14),~run_model_bf_wrapper(d_order_counts_wide,
+                                                     model_tmp,
+                                                     .x,
+                                                     results_file=results_file_bf,
+                                                     M=M_init_bf))
+    }
+
+  
     print(paste("Sampling Posterior for model:",model_name_tmp))
-    plan(multisession, workers=4)
-    model_results_post <-  future_map(c(2,5,9,14),
-                                      ~run_model_post_wrapper(d_order_counts_wide,
-                                                              model_tmp, 
-                                                              .x, 
-                                                              M=M_init_post),
-                                      .options = furrr_options(seed=T,stdout=T))
-    save(model_results_post, file=f_tmp_post)
-  }
+    if(do_parallel_post){
+      plan(multisession, workers=4)
+      future_map(c(2,5,9,14), ~run_model_post_wrapper(d_order_counts_wide,
+                                                                model_tmp, 
+                                                                .x, 
+                                                                results_file=results_file_post,
+                                                                M=M_init_post),
+                                        .options = furrr_options(seed=T,stdout=T))
+    }else{
+      map(c(2,5,9,14), ~run_model_post_wrapper(d_order_counts_wide,
+                                                            model_tmp, 
+                                                            .x, 
+                                                            results_file=results_file_post,
+                                                            M=M_init_post))
+    }
 }
 
 # # load results ========================================================================================================================
