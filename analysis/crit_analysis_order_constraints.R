@@ -9,7 +9,7 @@ library(scales)
 library(multinomineq)
 
 # whether or not to do parallel
-do_parallel_bf <- F
+do_parallel_bf <- T
 do_parallel_post <- F
 
 results_dir <- here("analysis/order_constraints/results/")
@@ -151,7 +151,7 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
   model_name <- model[[3]]
   
   # limit of number of samples taken from posterior. just to avoid computer overload. hopefully won't need it
-  samp_limit <- 5e8
+  samp_limit <- 500000000
   
   # sample from the prior
   prior_count <- count_multinom(k=0,options=c(6), A=model[[1]],b=model[[2]],M=M,progress = T)
@@ -163,20 +163,20 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
   # find bayes factor and check if not finite or if =0
   tmp_bf <- count_to_bf(posterior,prior_count)
   if(tmp_bf['bf_0u',1]==0 | !is.finite(tmp_bf['bf_0u',1])){ # re-sample as needed
-    M <- 10e6
+    M <- 10000000
     do_sample <- T
     while(do_sample){
       # print("re-sampling")
       posterior <- count_multinom(k=data,options=c(6),A=model[[1]], b=model[[2]],
-                                  M=M,progress = T)
+                                  M=M)
       tmp_bf <- count_to_bf(posterior,prior_count)
       if(tmp_bf['bf_0u',1]!=0 & is.finite(tmp_bf['bf_0u',1])){
         do_sample <- F
-      }else if(M_resample==samp_limit){
+      }else if(M>=samp_limit){
         print("hit sample limit")
         do_sample <- F
       }else{
-        M <- M+5e6
+        M <- M+100000000
       }
     }
   }
@@ -216,7 +216,7 @@ run_model_bf_wrapper <- function(data_all, model_current, distance_cond, results
       filter(sub_n==s &
              distance==distance_cond &
              model==model_current[[3]])
-    if(nrow(tmp)==0){
+    if(nrow(tmp)<3){
       cat(distance_cond,"% Distance","\n")
       cat(i,"/",n_subs," Subjects\n")
       results_tmp <- run_model_bf(filter(data_all_filtered,sub_n==s) %>%
@@ -249,8 +249,8 @@ run_model_post <- function(data, model, sub_n, distance, M=1e3){
   posterior <- sampling_multinom(k=data,options=c(6), A=model[[1]],b=model[[2]],M=M,progress=T)
   ppp <- ppp_multinom(posterior, k=data, c(6))
   results <- tibble(
-    distance=distance,
     sub_n=sub_n,
+    distance=distance,
     model=model_name,
     obs=ppp[1],
     pred=ppp[2],
@@ -267,13 +267,14 @@ run_model_post_wrapper <- function(data_all, model_current, distance_cond, resul
   results_df <- read.csv(results_file)
   i <- 1
   for(s in sub_ns){
-    cat(distance_cond,"% Distance","\n")
-    cat(i,"/",n_subs," Subjects\n")
+    # browser()
     tmp <- results_df %>%
       filter(sub_n==s &
                distance==distance_cond &
                model==model_current[[3]])
     if(nrow(tmp)==0){
+      cat(distance_cond,"% Distance","\n")
+      cat(i,"/",n_subs," Subjects\n")
       results_tmp <- run_model_post(filter(data_all_filtered,sub_n==s) %>%
                                       select(-c(sub_n,distance)) %>%
                                       unlist(as.vector(.)),
@@ -342,6 +343,8 @@ if(!file_exists(results_file_post)){
 for(model_tmp in models){
   
   model_name_tmp <- model_tmp[[3]]
+  print(paste("Sampling BF for model:",model_name_tmp))
+  
   if(do_parallel_bf){
       plan(multisession, workers=4)
       future_map(c(2,5,9,14),~run_model_bf_wrapper(d_order_counts_wide,

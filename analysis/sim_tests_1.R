@@ -1,0 +1,132 @@
+rm(list=ls())
+library(tidyverse)
+library(mvtnorm)
+library(here)
+
+#install.packages("matrixcalc")
+#library(matrixcalc)
+# fixed params
+s <- c(1,1,1)
+a <- ( s %*% t(s) )
+# varying params
+mu_C_all <- seq(.5,1,.1)
+mu_T_all <- seq(.5,1,.1)
+mu_D_diff_all <- seq(.5,1,.01)
+rho_TD_all <- seq(.5,1,.1)
+rho_TC_CD_all <- seq(.5,1,.1)
+
+
+sample <- function(N, mu, cv){
+  X <- rmvnorm(N, mu, cv)
+  # find which max and min
+  mx <- apply(X, 1, which.max)
+  mn <- apply(X, 1, which.min)
+  pmax <- c(sum(mx==1)/N,
+            sum(mx==2)/N,
+            sum(mx==3)/N)
+  pmin <- c(sum(mn==1)/N,
+            sum(mn==2)/N,
+            sum(mn==3)/N)
+  tibble(
+    option=c("t","c","d"),
+    b=pmax,
+    w=pmin
+  )
+}
+N <- 200000
+i <- 1
+sim <- vector("list")
+for(mu_T in mu_T_all){
+  for(mu_C in mu_C_all){
+    for(mu_D_diff in mu_D_diff_all){
+      for(rho_TD in rho_TD_all){
+        for(rho_TC in rho_TC_CD_all){
+          # print(i)
+          mu_D <- mu_T-mu_D_diff
+          mu <- c(mu_T, mu_C, mu_D)
+          rho_CD <- rho_TC
+          cv <- matrix(c(1, rho_TC, rho_TD,
+                         rho_TC, 1, rho_CD,
+                         rho_TD, rho_CD, 1), nrow=3, ncol=3,byrow=T)*a
+          #if(is.positive.semi.definite(cv)){
+            sim[[i]] <- sample(N, mu, cv) %>%
+              mutate(mu_T=mu_T,
+                     mu_C=mu_C,
+                     mu_D=mu_D,
+                     rho_TD=rho_TD,
+                     rho_TC_CD=rho_CD)
+            i <- i+1
+          #}
+        }
+      }
+    }
+  }
+}
+save(sim,file=here("analysis/sim_test_patterns/sim.RData"))
+
+load(here("analysis/sim_test_patterns/sim.RData"))
+sim_clean <- list_rbind(sim)
+sim_effects <- sim_clean %>%
+  pivot_wider(names_from = option,
+              values_from = c(b,w)) %>%
+  mutate(effect=case_when(
+    b_t>b_c & w_c>w_t & b_c>b_d & b_t>b_d & w_d>w_t & w_d>w_c ~ "attraction",
+    b_c>b_t & w_c>w_t & b_c>b_d & w_d>w_c & b_t>b_d & w_d>w_t ~ "non-monotonic repulsion",
+    b_c>b_t & w_t>w_c & b_c>b_d & w_d>w_c & b_t>b_d & w_d>w_t ~ "repulsion",
+    b_t>b_c & w_t>w_c & b_c>b_d & w_d>w_c & b_t>b_d & w_d>w_t ~ "non-monotonic attraction",
+    b_c>b_t & w_c>w_t & b_c>b_d & w_c>w_d & abs(b_t-b_d)<=.0001 & abs(w_t-w_d)<=.0001 ~ "similarity",
+    T~NA_character_
+  ),
+  mu_td=
+  case_when(
+    mu_T>mu_D ~ "mu_T>mu_D",
+    mu_T==mu_D ~ "mu_T=mu_D"
+  ),
+  mu_tc=case_when(
+    mu_T>mu_C ~ "mu_T>mu_C",
+    mu_C>mu_T ~ "mu_C>mu_T",
+    mu_T==mu_C~ "mu_T=mu_C"
+  ),
+  rho_TD_TC_CD=case_when(
+    rho_TD>rho_TC_CD~"rho_TD>rho_TC=rho_CD",
+    rho_TD<rho_TC_CD~"rho_TD<rho_TC=rho_CD",
+    rho_TD==rho_TC_CD~"rho_TD=rho_TC=rho_CD"
+  ),
+  all=str_glue("{mu_td}, {mu_tc}, {rho_TD_TC_CD}"))
+
+
+table(sim_effects$effect,useNA = "ifany")
+sim_effects %>%
+  filter(!is.na(effect)) %>%
+  group_by(effect,all) %>%
+  summarise(n=n()) %>%
+  ggplot(aes(all,n))+
+  geom_col(fill="lightblue")+
+  coord_flip()+
+  facet_grid(effect~.,scales="free_y")+
+  ggthemes::theme_few()
+
+# sim_clean <- list_rbind(sim) %>%
+#   pivot_longer(c(b,w),
+#                names_to = "choice", 
+#                values_to = "p") %>%
+#   pivot_wider(names_from = option, values_from = p) %>%
+#   pivot_wider(names_from = choice, values_from = c(t,c,d)) %>%
+#   mutate(bc_minus_bt=c_b-t_b,
+#          wc_minus_wt=c_w-t_w,
+#          bt_minus_bd=t_b-d_b,
+#          wt_minus_wd=t_w-d_w) %>%
+#   mutate(rho_TD=as.factor(rho_TD))
+# sim_clean %>%
+#   ggplot(aes(wc_minus_wt, bc_minus_bt, col=as.factor(rho_TD)))+
+#   geom_point()+
+#   ggsci::scale_color_startrek()+
+#   ggthemes::theme_few()
+# sim_clean %>%
+#   ggplot(aes(wt_minus_wd, bt_minus_bd, col=as.factor(rho_TD)))+
+#   geom_hline(yintercept=0,linetype="dashed")+
+#   geom_point()+
+#   ggsci::scale_color_startrek()+
+#   ggthemes::theme_few()
+# 
+# 

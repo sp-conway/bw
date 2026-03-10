@@ -4,7 +4,6 @@ Loading apptainer version latest
 No apptainer cache directory found. To prevent apptainer from filling up your
 home directory, you can create a new directory at
 `/work/pi_<your_pi_name>/.apptainer/cache` and reload the module. 
-here() starts at /work/pi_alc_umass_edu/spconway/scratch/bw
 ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ✔ dplyr     1.1.4     ✔ readr     2.1.5
 ✔ forcats   1.0.0     ✔ stringr   1.5.1
@@ -15,9 +14,12 @@ here() starts at /work/pi_alc_umass_edu/spconway/scratch/bw
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()
 ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-Installing package into ‘/usr/local/lib/R/site-library’
-(as ‘lib’ is unspecified)
-Warning in install.packages("furrr") :
-  'lib = "/usr/local/lib/R/site-library"' is not writable
-Error in install.packages("furrr") : unable to install packages
-Execution halted
+here() starts at /work/pi_alc_umass_edu/spconway/scratch/bw
+There were 50 or more warnings (use warnings() to see the first 50)
+
+              attraction non-monotonic attraction  non-monotonic repulsion 
+                   18941                    11448                    13264 
+               repulsion                     <NA> 
+                   18191                     4252 
+`summarise()` has grouped output by 'effect'. You can override using the
+`.groups` argument.
