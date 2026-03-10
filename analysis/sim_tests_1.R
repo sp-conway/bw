@@ -3,19 +3,9 @@ library(tidyverse)
 library(fs)
 library(mvtnorm)
 library(here)
-
-#install.packages("matrixcalc")
 library(matrixcalc)
-# fixed params
-s <- c(1,1,1)
-a <- ( s %*% t(s) )
-# varying params
-mu_C_all <- seq(.5,1,.1)
+library(furrr)
 mu_T_all <- seq(.5,1,.1)
-mu_D_diff_all <- seq(.5,0,-.1)
-rho_TD_all <- seq(.5,1,.1)
-rho_TC_CD_all <- seq(.5,1,.1)
-
 
 sample <- function(N, mu, cv){
   X <- rmvnorm(N, mu, cv)
@@ -35,10 +25,15 @@ sample <- function(N, mu, cv){
   )
 }
 
-f <- here("analysis/sim_test_patterns/sim_patterns.RData")
-if(!file_exists(f)){
-  N <- 500000
-  K <- length(mu_T_all)*length(mu_C_all)*length(mu_D_diff_all)*length(rho_TD_all)*length(rho_TC_CD_all)
+sample_wrapper <- function(mu_T){
+  # fixed params
+  s <- c(1,1,1)
+  a <- ( s %*% t(s) )
+  # varying params
+  mu_C_all <- seq(.5,1,.1)
+  mu_D_diff_all <- seq(.5,0,-.1)
+  rho_TD_all <- seq(.5,1,.1)
+  rho_TC_CD_all <- seq(.5,1,.1)
   i <- 1
   sim <- vector("list")
   for(mu_T in mu_T_all){
@@ -65,11 +60,41 @@ if(!file_exists(f)){
               #end <- Sys.time()
               #print(end-st)
             }
+  N <- 500000
+  K <- length(mu_T_all)*length(mu_C_all)*length(mu_D_diff_all)*length(rho_TD_all)*length(rho_TC_CD_all)
+  for(mu_C in mu_C_all){
+    for(mu_D_diff in mu_D_diff_all){
+      for(rho_TD in rho_TD_all){
+        for(rho_TC in rho_TC_CD_all){
+          cat(i,"/",K,"\n==========================\n")
+          mu_D <- mu_T-mu_D_diff
+          mu <- c(mu_T, mu_C, mu_D)
+          rho_CD <- rho_TC
+          cv <- matrix(c(1, rho_TC, rho_TD,
+                         rho_TC, 1, rho_CD,
+                         rho_TD, rho_CD, 1), nrow=3, ncol=3,byrow=T)*a
+          if(is.positive.semi.definite(cv)){
+            # st <- Sys.time()
+            sim[[i]] <- sample(N, mu, cv) %>%
+              mutate(mu_T=mu_T,
+                     mu_C=mu_C,
+                     mu_D=mu_D,
+                     rho_TD=rho_TD,
+                     rho_TC_CD=rho_CD)
+            i <- i+1
+            end <- Sys.time()
+            # print(end-st)
           }
         }
       }
     }
   }
+  return(sim)
+}
+f <- here("analysis/sim_test_patterns/sim_patterns.RData")
+if(!file_exists(f)){
+  plan(multisession)
+  sim <- future_map(mu_T_all,~sample_wrapper(.x),.options = furrr_options(seed = NULL))
   save(sim,file=f)
 }else{
   load(f)
