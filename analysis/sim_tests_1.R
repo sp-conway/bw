@@ -54,7 +54,7 @@ if(!file_exists(f)){
                            rho_TC, 1, rho_CD,
                            rho_TD, rho_CD, 1), nrow=3, ncol=3,byrow=T)*a
             if(is.positive.semi.definite(cv)){
-              st <- Sys.time()
+              #st <- Sys.time()
               sim[[i]] <- sample(N, mu, cv) %>%
                 mutate(mu_T=mu_T,
                        mu_C=mu_C,
@@ -62,8 +62,8 @@ if(!file_exists(f)){
                        rho_TD=rho_TD,
                        rho_TC_CD=rho_CD)
               i <- i+1
-              end <- Sys.time()
-              print(end-st)
+              #end <- Sys.time()
+              #print(end-st)
             }
           }
         }
