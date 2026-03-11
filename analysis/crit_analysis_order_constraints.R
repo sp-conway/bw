@@ -428,123 +428,123 @@ model_results_all_post <-  here("analysis/order_constraints/results/post.csv") %
   read_csv()
 #
 # # # first examine bayes factors ================================================================
-#
-# model_results_all_bf_data <- model_results_all_bf %>%
-#   left_join(d_order_counts_wide)
-# 
-# model_results_all_bf_data %>%
-#   group_by(distance,model) %>%
-#   summarise(n_zero=sum(bf==0),
-#             n_not_finite=sum(!is.finite(bf))) %>%
-#   ungroup() %>%
-#   arrange(model) %>%
-#   print(n=nrow(.))
-# model_results_all_bf_max <- model_results_all_bf_data %>%
-#   group_by(sub_n,distance) %>%
-#   mutate(max_bf=max(bf,na.rm=T)) %>%
-#   ungroup() %>%
-#   filter(bf==max_bf) %>%
-#   ungroup() %>%
-#   left_join(model_results_all_post) %>%
-#   mutate(model=case_when(
-#     bf<1~"none",
-#     T~model
-#   ))
-# model_results_all_bf_max %>%
-#   group_by(distance)%>%
-#   summarise(n=n()) %>%
-#   ungroup()
-# 
-# model_counts <- model_results_all_bf_max %>%
-#   group_by(model,distance) %>%
-#   summarise(n=n()) %>%
-#   ungroup() %>%
-#   group_by(distance) %>%
-#   mutate(perc=100*(n/sum(n))) %>%
-#   ungroup() %>%
-#   arrange(distance, model, desc(n)) %>%
-#   mutate(distance=str_glue("{distance}% TDD"),
-#          distance=factor(distance,
-#                          levels=c("2% TDD",
-#                                   "5% TDD",
-#                                   "9% TDD",
-#                                   "14% TDD")))
-# model_counts %>%
-#   print(n=30)
-# 
-# model_counts %>%
-#   mutate(model=factor(model,
-#                       levels=model_levels,
-#                       labels=model_labels)) %>%
-#   arrange(distance, desc(n)) %>%
-#   ggplot(aes(model,n))+
-#   geom_col(position="dodge",fill="lightblue")+
-#   labs(x="model",y="N preferred")+
-#   coord_flip()+
-#   facet_wrap(vars(distance),nrow=2)+
-#   ggthemes::theme_few()+
-#   theme(text=element_text(size=14))
-# ggsave(filename = path(results_dir,glue("bf_counts_{M_init}_samples.pdf")),
-#        width=5,height=5)
-# # # #
-# model_summaries  <- model_results_all_bf_max %>%
-#   mutate(distance=str_glue("{distance}% TDD"),
-#          distance=factor(distance,
-#                          levels=c("2% TDD",
-#                                   "5% TDD",
-#                                   "9% TDD",
-#                                   "14% TDD"))) %>%
-#   mutate(bf=case_when(
-#     bf==0~1e-323,
-#     T~bf
-#   )) %>%
-#   filter(model!="none") %>%
-#   group_by(distance, model) %>%
-#   summarise(bf_joint_log=sum(log10(bf)),
-#             bf_joint=10^bf_joint_log) %>%
-#   ungroup() %>%
-#   arrange(distance,model,desc(bf_joint_log))
-# 
-# 
-# model_summaries %>%
-#   mutate(model=factor(model,
-#                       levels=model_levels,
-#                       labels=model_labels)) %>%
-#   ggplot(aes(model,bf_joint_log))+
-#   geom_col(position="dodge",fill="lightblue",width=.75)+
-#   geom_hline(yintercept=0,alpha=.85,linetype="dashed")+
-#   labs(x="model",y="log10 joint bayes factor")+
-#   coord_flip()+
-#   facet_wrap(vars(distance),nrow=2,scales="free_x")+
-#   ggthemes::theme_few()+
-#   theme(text=element_text(size=14))
-# ggsave(filename = path(results_dir,glue("bf_joint_{M_init}_samples.pdf")),
-#        width=5,height=5)
-# 
-# # posteriors ============================================================
-# model_results_all_bf_max_w_post <- model_results_all_bf_max %>%
-#   left_join(model_results_all_post)
-# model_results_all_bf_max_w_post %>%
-#   mutate(reject=case_when(
-#     ppp<.05 ~ "reject",
-#     ppp>=.05~"fail to reject"
-#   ),
-#   reject=factor(reject,levels=c("reject","fail to reject"))) %>%
-#   group_by(model,distance,reject) %>%
-#   summarise(n=n()) %>%
-#   ungroup() %>%
-#   pivot_wider(names_from = reject,
-#               values_from = n,
-#               values_fill = 0) %>%
-#   print(n=30)
-# 
-# model_results_all_bf_max_w_post %>%
-#   ggplot(aes(ppp))+
-#   geom_histogram(fill="lightblue")+
-#   facet_grid(model~distance)+
-#   ggthemes::theme_few()
-# 
-# model_results_all_bf_max %>%
-#   filter(model=="none") %>%
-#   select(sub_n,distance,tcd,tdc,ctd,cdt,dtc,dct) %>%
-#   print(n=30)
+
+model_results_all_bf_data <- model_results_all_bf %>%
+  left_join(d_order_counts_wide)
+
+model_results_all_bf_data %>%
+  group_by(distance,model) %>%
+  summarise(n_zero=sum(bf==0),
+            n_not_finite=sum(!is.finite(bf))) %>%
+  ungroup() %>%
+  arrange(model) %>%
+  print(n=nrow(.))
+model_results_all_bf_max <- model_results_all_bf_data %>%
+  group_by(sub_n,distance) %>%
+  mutate(max_bf=max(bf,na.rm=T)) %>%
+  ungroup() %>%
+  filter(bf==max_bf) %>%
+  ungroup() %>%
+  left_join(model_results_all_post) %>%
+  mutate(model=case_when(
+    bf<1~"none",
+    T~model
+  ))
+model_results_all_bf_max %>%
+  group_by(distance)%>%
+  summarise(n=n()) %>%
+  ungroup()
+
+model_counts <- model_results_all_bf_max %>%
+  group_by(model,distance) %>%
+  summarise(n=n()) %>%
+  ungroup() %>%
+  group_by(distance) %>%
+  mutate(perc=100*(n/sum(n))) %>%
+  ungroup() %>%
+  arrange(distance, model, desc(n)) %>%
+  mutate(distance=str_glue("{distance}% TDD"),
+         distance=factor(distance,
+                         levels=c("2% TDD",
+                                  "5% TDD",
+                                  "9% TDD",
+                                  "14% TDD")))
+model_counts %>%
+  print(n=30)
+
+model_counts %>%
+  mutate(model=factor(model,
+                      levels=model_levels,
+                      labels=model_labels)) %>%
+  arrange(distance, desc(n)) %>%
+  ggplot(aes(model,n))+
+  geom_col(position="dodge",fill="lightblue")+
+  labs(x="model",y="N preferred")+
+  coord_flip()+
+  facet_wrap(vars(distance),nrow=2)+
+  ggthemes::theme_few()+
+  theme(text=element_text(size=14))
+ggsave(filename = path(results_dir,glue("bf_counts_{M_init}_samples.pdf")),
+       width=5,height=5)
+# # #
+model_summaries  <- model_results_all_bf_max %>%
+  mutate(distance=str_glue("{distance}% TDD"),
+         distance=factor(distance,
+                         levels=c("2% TDD",
+                                  "5% TDD",
+                                  "9% TDD",
+                                  "14% TDD"))) %>%
+  mutate(bf=case_when(
+    bf==0~1e-323,
+    T~bf
+  )) %>%
+  filter(model!="none") %>%
+  group_by(distance, model) %>%
+  summarise(bf_joint_log=sum(log10(bf)),
+            bf_joint=10^bf_joint_log) %>%
+  ungroup() %>%
+  arrange(distance,model,desc(bf_joint_log))
+
+
+model_summaries %>%
+  mutate(model=factor(model,
+                      levels=model_levels,
+                      labels=model_labels)) %>%
+  ggplot(aes(model,bf_joint_log))+
+  geom_col(position="dodge",fill="lightblue",width=.75)+
+  geom_hline(yintercept=0,alpha=.85,linetype="dashed")+
+  labs(x="model",y="log10 joint bayes factor")+
+  coord_flip()+
+  facet_wrap(vars(distance),nrow=2,scales="free_x")+
+  ggthemes::theme_few()+
+  theme(text=element_text(size=14))
+ggsave(filename = path(results_dir,glue("bf_joint_{M_init}_samples.pdf")),
+       width=5,height=5)
+
+# posteriors ============================================================
+model_results_all_bf_max_w_post <- model_results_all_bf_max %>%
+  left_join(model_results_all_post)
+model_results_all_bf_max_w_post %>%
+  mutate(reject=case_when(
+    ppp<.05 ~ "reject",
+    ppp>=.05~"fail to reject"
+  ),
+  reject=factor(reject,levels=c("reject","fail to reject"))) %>%
+  group_by(model,distance,reject) %>%
+  summarise(n=n()) %>%
+  ungroup() %>%
+  pivot_wider(names_from = reject,
+              values_from = n,
+              values_fill = 0) %>%
+  print(n=30)
+
+model_results_all_bf_max_w_post %>%
+  ggplot(aes(ppp))+
+  geom_histogram(fill="lightblue")+
+  facet_grid(model~distance)+
+  ggthemes::theme_few()
+
+model_results_all_bf_max %>%
+  filter(model=="none") %>%
+  select(sub_n,distance,tcd,tdc,ctd,cdt,dtc,dct) %>%
+  print(n=30)
