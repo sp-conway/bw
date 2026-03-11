@@ -8,6 +8,7 @@ library(furrr)
 library(scales)
 library(multinomineq)
 
+do_models <- T
 # whether or not to do parallel
 do_parallel_bf <- F
 do_parallel_post <- F
@@ -130,9 +131,9 @@ models <- list(
   list(nonmonotonic_repulsion_A,
        nonmonotonic_repulsion_B,
        "non-monotonic_repulsion"),
-  list(nonmonotonic_repulsion_strong_A,
-       nonmonotonic_repulsion_strong_B,
-       "non-monotonic_repulsion_strong"),
+  # list(nonmonotonic_repulsion_strong_A,
+  #      nonmonotonic_repulsion_strong_B,
+  #      "non-monotonic_repulsion_strong"),
   list(nonmonotonic_attraction_A,
        nonmonotonic_attraction_B,
        "non-monotonic_attraction"),
@@ -151,7 +152,7 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
   model_name <- model[[3]]
   
   # limit of number of samples taken from posterior. just to avoid computer overload. hopefully won't need it
-  samp_limit <- 50000001
+  samp_limit <- 500000000
   
   # sample from the prior
   prior_count <- count_multinom(k=0,options=c(6), A=model[[1]],b=model[[2]],M=M,progress = T)
@@ -163,7 +164,7 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
   # find bayes factor and check if not finite or if =0
   tmp_bf <- count_to_bf(posterior,prior_count)
   if(tmp_bf['bf_0u',1]==0 | !is.finite(tmp_bf['bf_0u',1])){ # re-sample as needed
-    M <- 50000000
+    M <- 5000000000
     do_sample <- T
     while(do_sample){
       # print("re-sampling")
@@ -216,7 +217,7 @@ run_model_bf_wrapper <- function(data_all, model_current, distance_cond, results
       filter(sub_n==s &
              distance==distance_cond &
              model==model_current[[3]])
-    if(nrow(tmp)<3){
+    if(nrow(tmp)==0){
       cat(distance_cond,"% Distance","\n")
       cat(i,"/",n_subs," Subjects\n")
       results_tmp <- run_model_bf(filter(data_all_filtered,sub_n==s) %>%
@@ -339,46 +340,53 @@ if(!file_exists(results_file_post)){
   write_csv(tmp_post, file=results_file_post)
 }
 
-
-for(model_tmp in models){
-  
-  model_name_tmp <- model_tmp[[3]]
-  print(paste("Sampling BF for model:",model_name_tmp))
-  
-  if(do_parallel_bf){
+if(do_models){
+  for(model_tmp in models){
+    
+    model_name_tmp <- model_tmp[[3]]
+    
+    if(do_parallel_bf){
+      print(paste("Sampling BF for model:",model_name_tmp))
       plan(multisession, workers=4)
       future_map(c(2,5,9,14),~run_model_bf_wrapper(d_order_counts_wide,
-                                                            model_tmp,
-                                                            .x,
-                                                            results_file=results_file_bf,
-                                                            M=M_init_bf),
-                                      .options = furrr_options(seed = T,stdout=T))
+                                                   model_tmp,
+                                                   .x,
+                                                   results_file=results_file_bf,
+                                                   M=M_init_bf),
+                 .options = furrr_options(seed = T,stdout=T))
     }else{
+      print(paste("Sampling BF for model:",model_name_tmp))
       map(c(2,5,9,14),~run_model_bf_wrapper(d_order_counts_wide,
-                                                     model_tmp,
-                                                     .x,
-                                                     results_file=results_file_bf,
-                                                     M=M_init_bf))
+                                            model_tmp,
+                                            .x,
+                                            results_file=results_file_bf,
+                                            M=M_init_bf))
     }
-
-  
-    print(paste("Sampling Posterior for model:",model_name_tmp))
+    
+    
     if(do_parallel_post){
+      print(paste("Sampling Posterior for model:",model_name_tmp))
+      
       plan(multisession, workers=4)
       future_map(c(2,5,9,14), ~run_model_post_wrapper(d_order_counts_wide,
-                                                                model_tmp, 
-                                                                .x, 
-                                                                results_file=results_file_post,
-                                                                M=M_init_post),
-                                        .options = furrr_options(seed=T,stdout=T))
+                                                      model_tmp, 
+                                                      .x, 
+                                                      results_file=results_file_post,
+                                                      M=M_init_post),
+                 .options = furrr_options(seed=T,stdout=T))
     }else{
+      print(paste("Sampling Posterior for model:",model_name_tmp))
+      
       map(c(2,5,9,14), ~run_model_post_wrapper(d_order_counts_wide,
-                                                            model_tmp, 
-                                                            .x, 
-                                                            results_file=results_file_post,
-                                                            M=M_init_post))
+                                               model_tmp, 
+                                               .x, 
+                                               results_file=results_file_post,
+                                               M=M_init_post))
     }
+  }
 }
+
+
 
 # # load results ========================================================================================================================
 # load_results_bf <- function(f){
@@ -395,7 +403,7 @@ for(model_tmp in models){
 #     return(model_results_post_1)
 #   }
 # }
-# 
+
 # model_levels <- c("none",
 #                  "repulsion",
 #                  "attraction",
@@ -412,137 +420,131 @@ for(model_tmp in models){
 #   "non-monotonic attraction")#,
 #   #"similarity"
 # #)
-# models_all_bf <- results_dir %>%
-#   dir_ls(regexp="bf",type = "file")
-# model_results_all_bf <- map(models_all_bf, load_results_bf) %>%
-#   list_rbind() %>%
-#   filter(comparison=="bf_0u") 
-# models_all_post <- results_dir %>%
-#   dir_ls(regexp="post")
-# model_results_all_post <- map(models_all_post, load_results_post) %>%
-#   list_rbind() %>%
-#   mutate(model=factor(model,
-#                       levels=model_levels,
-#                       labels=model_labels))
-# # 
-# # # # first examine bayes factors ================================================================
-# # 
-# model_results_all_bf_data <- model_results_all_bf %>%
-#   left_join(d_order_counts_wide)
-# 
-# model_results_all_bf_data %>%
-#   group_by(distance,model) %>%
-#   summarise(n_zero=sum(bf==0),
-#             n_not_finite=sum(!is.finite(bf))) %>%
-#   ungroup() %>%
-#   arrange(model) %>%
-#   print(n=nrow(.))
-# model_results_all_bf_max <- model_results_all_bf_data %>%
-#   group_by(sub_n,distance) %>%
-#   mutate(max_bf=max(bf,na.rm=T)) %>%
-#   ungroup() %>%
-#   filter(bf==max_bf) %>%
-#   ungroup() %>%
-#   left_join(model_results_all_post) %>%
-#   mutate(model=case_when(
-#     bf<1~"none",
-#     T~model
-#   ))
-# model_results_all_bf_max %>%
-#   group_by(distance)%>%
-#   summarise(n=n()) %>%
-#   ungroup() 
-# 
-# model_counts <- model_results_all_bf_max %>%
-#   group_by(model,distance) %>%
-#   summarise(n=n()) %>%
-#   ungroup() %>%
-#   group_by(distance) %>%
-#   mutate(perc=100*(n/sum(n))) %>%
-#   ungroup() %>%
-#   arrange(distance, model, desc(n)) %>%
-#   mutate(distance=str_glue("{distance}% TDD"),
-#          distance=factor(distance,
-#                          levels=c("2% TDD",
-#                                   "5% TDD",
-#                                   "9% TDD",
-#                                   "14% TDD")))
-# model_counts %>%
-#   print(n=30) 
-# 
-# model_counts %>%
-#   mutate(model=factor(model,
-#                       levels=model_levels,
-#                       labels=model_labels)) %>%
-#   arrange(distance, desc(n)) %>%
-#   ggplot(aes(model,n))+
-#   geom_col(position="dodge",fill="lightblue")+
-#   labs(x="model",y="N preferred")+
-#   coord_flip()+
-#   facet_wrap(vars(distance),nrow=2)+
-#   ggthemes::theme_few()+
-#   theme(text=element_text(size=14))
-# ggsave(filename = path(results_dir,glue("bf_counts_{M_init}_samples.pdf")),
-#        width=5,height=5)
-# # # #
-# model_summaries  <- model_results_all_bf_max %>%
-#   mutate(distance=str_glue("{distance}% TDD"),
-#          distance=factor(distance,
-#                          levels=c("2% TDD",
-#                                   "5% TDD",
-#                                   "9% TDD",
-#                                   "14% TDD"))) %>%
-#   mutate(bf=case_when(
-#     bf==0~1e-323,
-#     T~bf
-#   )) %>%
-#   filter(model!="none") %>%
-#   group_by(distance, model) %>%
-#   summarise(bf_joint_log=sum(log10(bf)),
-#             bf_joint=10^bf_joint_log) %>%
-#   ungroup() %>%
-#   arrange(distance,model,desc(bf_joint_log))
-# 
-# 
-# model_summaries %>%
-#   mutate(model=factor(model,
-#                       levels=model_levels,
-#                       labels=model_labels)) %>%
-#   ggplot(aes(model,bf_joint_log))+
-#   geom_col(position="dodge",fill="lightblue",width=.75)+
-#   geom_hline(yintercept=0,alpha=.85,linetype="dashed")+
-#   labs(x="model",y="log10 joint bayes factor")+
-#   coord_flip()+
-#   facet_wrap(vars(distance),nrow=2,scales="free_x")+
-#   ggthemes::theme_few()+
-#   theme(text=element_text(size=14))
-# ggsave(filename = path(results_dir,glue("bf_joint_{M_init}_samples.pdf")),
-#        width=5,height=5)
-# 
-# # posteriors ============================================================
-# model_results_all_bf_max_w_post <- model_results_all_bf_max %>%
-#   left_join(model_results_all_post)
-# model_results_all_bf_max_w_post %>%
-#   mutate(reject=case_when(
-#     ppp<.05 ~ "reject",
-#     ppp>=.05~"fail to reject"
-#   ),
-#   reject=factor(reject,levels=c("reject","fail to reject"))) %>%
-#   group_by(model,distance,reject) %>%
-#   summarise(n=n()) %>%
-#   ungroup() %>%
-#   pivot_wider(names_from = reject,
-#               values_from = n, 
-#               values_fill = 0) %>%
-#   print(n=30)
-# 
-# model_results_all_bf_max_w_post %>%
-#   ggplot(aes(ppp))+
-#   geom_histogram(fill="lightblue")+
-#   facet_grid(model~distance)+
-#   ggthemes::theme_few()
-# 
-# model_results_all_bf_max %>%
-#   filter(model=="none") %>%
-#   select(sub_n,distance,tcd,tdc,ctd,cdt,dtc,dct) %>%
-#   print(n=30)
+model_results_all_bf <- here("analysis/order_constraints/results/bf.csv") %>%
+  read_csv()%>%
+  filter(comparison=="bf_0u")
+
+model_results_all_post <-  here("analysis/order_constraints/results/post.csv") %>%
+  read_csv()
+#
+# # # first examine bayes factors ================================================================
+#
+model_results_all_bf_data <- model_results_all_bf %>%
+  left_join(d_order_counts_wide)
+
+model_results_all_bf_data %>%
+  group_by(distance,model) %>%
+  summarise(n_zero=sum(bf==0),
+            n_not_finite=sum(!is.finite(bf))) %>%
+  ungroup() %>%
+  arrange(model) %>%
+  print(n=nrow(.))
+model_results_all_bf_max <- model_results_all_bf_data %>%
+  group_by(sub_n,distance) %>%
+  mutate(max_bf=max(bf,na.rm=T)) %>%
+  ungroup() %>%
+  filter(bf==max_bf) %>%
+  ungroup() %>%
+  left_join(model_results_all_post) %>%
+  mutate(model=case_when(
+    bf<1~"none",
+    T~model
+  ))
+model_results_all_bf_max %>%
+  group_by(distance)%>%
+  summarise(n=n()) %>%
+  ungroup()
+
+model_counts <- model_results_all_bf_max %>%
+  group_by(model,distance) %>%
+  summarise(n=n()) %>%
+  ungroup() %>%
+  group_by(distance) %>%
+  mutate(perc=100*(n/sum(n))) %>%
+  ungroup() %>%
+  arrange(distance, model, desc(n)) %>%
+  mutate(distance=str_glue("{distance}% TDD"),
+         distance=factor(distance,
+                         levels=c("2% TDD",
+                                  "5% TDD",
+                                  "9% TDD",
+                                  "14% TDD")))
+model_counts %>%
+  print(n=30)
+
+model_counts %>%
+  mutate(model=factor(model,
+                      levels=model_levels,
+                      labels=model_labels)) %>%
+  arrange(distance, desc(n)) %>%
+  ggplot(aes(model,n))+
+  geom_col(position="dodge",fill="lightblue")+
+  labs(x="model",y="N preferred")+
+  coord_flip()+
+  facet_wrap(vars(distance),nrow=2)+
+  ggthemes::theme_few()+
+  theme(text=element_text(size=14))
+ggsave(filename = path(results_dir,glue("bf_counts_{M_init}_samples.pdf")),
+       width=5,height=5)
+# # #
+model_summaries  <- model_results_all_bf_max %>%
+  mutate(distance=str_glue("{distance}% TDD"),
+         distance=factor(distance,
+                         levels=c("2% TDD",
+                                  "5% TDD",
+                                  "9% TDD",
+                                  "14% TDD"))) %>%
+  mutate(bf=case_when(
+    bf==0~1e-323,
+    T~bf
+  )) %>%
+  filter(model!="none") %>%
+  group_by(distance, model) %>%
+  summarise(bf_joint_log=sum(log10(bf)),
+            bf_joint=10^bf_joint_log) %>%
+  ungroup() %>%
+  arrange(distance,model,desc(bf_joint_log))
+
+
+model_summaries %>%
+  mutate(model=factor(model,
+                      levels=model_levels,
+                      labels=model_labels)) %>%
+  ggplot(aes(model,bf_joint_log))+
+  geom_col(position="dodge",fill="lightblue",width=.75)+
+  geom_hline(yintercept=0,alpha=.85,linetype="dashed")+
+  labs(x="model",y="log10 joint bayes factor")+
+  coord_flip()+
+  facet_wrap(vars(distance),nrow=2,scales="free_x")+
+  ggthemes::theme_few()+
+  theme(text=element_text(size=14))
+ggsave(filename = path(results_dir,glue("bf_joint_{M_init}_samples.pdf")),
+       width=5,height=5)
+
+# posteriors ============================================================
+model_results_all_bf_max_w_post <- model_results_all_bf_max %>%
+  left_join(model_results_all_post)
+model_results_all_bf_max_w_post %>%
+  mutate(reject=case_when(
+    ppp<.05 ~ "reject",
+    ppp>=.05~"fail to reject"
+  ),
+  reject=factor(reject,levels=c("reject","fail to reject"))) %>%
+  group_by(model,distance,reject) %>%
+  summarise(n=n()) %>%
+  ungroup() %>%
+  pivot_wider(names_from = reject,
+              values_from = n,
+              values_fill = 0) %>%
+  print(n=30)
+
+model_results_all_bf_max_w_post %>%
+  ggplot(aes(ppp))+
+  geom_histogram(fill="lightblue")+
+  facet_grid(model~distance)+
+  ggthemes::theme_few()
+
+model_results_all_bf_max %>%
+  filter(model=="none") %>%
+  select(sub_n,distance,tcd,tdc,ctd,cdt,dtc,dct) %>%
+  print(n=30)
