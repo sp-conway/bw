@@ -9,7 +9,7 @@ library(scales)
 library(multinomineq)
 
 # whether or not to do parallel
-do_parallel_bf <- T
+do_parallel_bf <- F
 do_parallel_post <- F
 
 results_dir <- here("analysis/order_constraints/results/")
@@ -130,9 +130,9 @@ models <- list(
   list(nonmonotonic_repulsion_A,
        nonmonotonic_repulsion_B,
        "non-monotonic_repulsion"),
-  # list(nonmonotonic_repulsion_strong_A,
-  #      nonmonotonic_repulsion_strong_B,
-  #      "non-monotonic_repulsion_strong"),
+  list(nonmonotonic_repulsion_strong_A,
+       nonmonotonic_repulsion_strong_B,
+       "non-monotonic_repulsion_strong"),
   list(nonmonotonic_attraction_A,
        nonmonotonic_attraction_B,
        "non-monotonic_attraction"),
@@ -151,7 +151,7 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
   model_name <- model[[3]]
   
   # limit of number of samples taken from posterior. just to avoid computer overload. hopefully won't need it
-  samp_limit <- 500000000
+  samp_limit <- 50000001
   
   # sample from the prior
   prior_count <- count_multinom(k=0,options=c(6), A=model[[1]],b=model[[2]],M=M,progress = T)
@@ -163,7 +163,7 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
   # find bayes factor and check if not finite or if =0
   tmp_bf <- count_to_bf(posterior,prior_count)
   if(tmp_bf['bf_0u',1]==0 | !is.finite(tmp_bf['bf_0u',1])){ # re-sample as needed
-    M <- 10000000
+    M <- 50000000
     do_sample <- T
     while(do_sample){
       # print("re-sampling")
@@ -172,7 +172,7 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
       tmp_bf <- count_to_bf(posterior,prior_count)
       if(tmp_bf['bf_0u',1]!=0 & is.finite(tmp_bf['bf_0u',1])){
         do_sample <- F
-      }else if(M>=samp_limit){
+      }else if(M>samp_limit){
         print("hit sample limit")
         do_sample <- F
       }else{
