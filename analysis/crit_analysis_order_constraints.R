@@ -122,21 +122,21 @@ similarity_A <- read_model_A(here("analysis/order_constraints/similarity.txt"),
 similarity_B <- read_model_B(here("analysis/order_constraints/similarity.txt"),
                              skip=18,nlines=15)
 models <- list(
-  list(attraction_A,
-       attraction_B,
-       "attraction"),
-  list(repulsion_A,
-       repulsion_B,
-       "repulsion"),
-  list(nonmonotonic_repulsion_A,
-       nonmonotonic_repulsion_B,
-       "non-monotonic_repulsion"),
-  # list(nonmonotonic_repulsion_strong_A,
-  #      nonmonotonic_repulsion_strong_B,
-  #      "non-monotonic_repulsion_strong"),
-  list(nonmonotonic_attraction_A,
-       nonmonotonic_attraction_B,
-       "non-monotonic_attraction"),
+  # list(attraction_A,
+  #      attraction_B,
+  #      "attraction"),
+  # list(repulsion_A,
+  #      repulsion_B,
+  #      "repulsion"),
+  # list(nonmonotonic_repulsion_A,
+  #      nonmonotonic_repulsion_B,
+  #      "non-monotonic_repulsion"),
+  # # list(nonmonotonic_repulsion_strong_A,
+  # #      nonmonotonic_repulsion_strong_B,
+  # #      "non-monotonic_repulsion_strong"),
+  # list(nonmonotonic_attraction_A,
+  #      nonmonotonic_attraction_B,
+  #      "non-monotonic_attraction"),
   list(similarity_A,
        similarity_B,
        "similarity")
@@ -217,7 +217,7 @@ run_model_bf_wrapper <- function(data_all, model_current, distance_cond, results
       filter(sub_n==s &
              distance==distance_cond &
              model==model_current[[3]])
-    if(nrow(tmp)==0){
+    if(nrow(tmp)<3){
       cat(distance_cond,"% Distance","\n")
       cat(i,"/",n_subs," Subjects\n")
       results_tmp <- run_model_bf(filter(data_all_filtered,sub_n==s) %>%
@@ -307,7 +307,7 @@ run_model_post_wrapper <- function(data_all, model_current, distance_cond, resul
 # run analyses ============================================================================================================================================================
 # IMPORTANT - NUMBER OF SAMPLES 
 M_init_post <- 50000 # need a lot less for posterior distributions, if p=0 it's okay
-M_init_bf <- 500000
+M_init_bf <- 10000000
 
 results_file_bf <- path(results_dir,"bf.csv")
 if(!file_exists(results_file_bf)){
@@ -420,12 +420,10 @@ if(do_models){
 #   "non-monotonic attraction")#,
 #   #"similarity"
 # #)
-model_results_all_bf <- here("analysis/order_constraints/results/bf.csv") %>%
-  read_csv()%>%
-  filter(comparison=="bf_0u")
-
-model_results_all_post <-  here("analysis/order_constraints/results/post.csv") %>%
-  read_csv()
+# model_results_all_bf <- here("analysis/order_constraints/results/bf.csv") %>%
+#   read_csv()
+# model_results_all_post <-  here("analysis/order_constraints/results/post.csv") %>%
+#   read_csv()
 #
 # # # first examine bayes factors ================================================================
 #
@@ -473,9 +471,9 @@ model_results_all_post <-  here("analysis/order_constraints/results/post.csv") %
 #   print(n=30)
 # 
 # model_counts %>%
-#   mutate(model=factor(model,
-#                       levels=model_levels,
-#                       labels=model_labels)) %>%
+#   # mutate(model=factor(model,
+#   #                     levels=model_levels,
+#   #                     labels=model_labels)) %>%
 #   arrange(distance, desc(n)) %>%
 #   ggplot(aes(model,n))+
 #   geom_col(position="dodge",fill="lightblue")+
@@ -487,18 +485,15 @@ model_results_all_post <-  here("analysis/order_constraints/results/post.csv") %
 # ggsave(filename = path(results_dir,glue("bf_counts_{M_init}_samples.pdf")),
 #        width=5,height=5)
 # # # #
-# model_summaries  <- model_results_all_bf_max %>%
+# model_summaries  <- model_results_all_bf %>%
 #   mutate(distance=str_glue("{distance}% TDD"),
 #          distance=factor(distance,
 #                          levels=c("2% TDD",
 #                                   "5% TDD",
 #                                   "9% TDD",
 #                                   "14% TDD"))) %>%
-#   mutate(bf=case_when(
-#     bf==0~1e-323,
-#     T~bf
-#   )) %>%
 #   filter(model!="none") %>%
+#   mutate(l=log10(bf)) %>%
 #   group_by(distance, model) %>%
 #   summarise(bf_joint_log=sum(log10(bf)),
 #             bf_joint=10^bf_joint_log) %>%
@@ -507,9 +502,9 @@ model_results_all_post <-  here("analysis/order_constraints/results/post.csv") %
 # 
 # 
 # model_summaries %>%
-#   mutate(model=factor(model,
-#                       levels=model_levels,
-#                       labels=model_labels)) %>%
+#   # mutate(model=factor(model,
+#   #                     levels=model_levels,
+#   #                     labels=model_labels)) %>%
 #   ggplot(aes(model,bf_joint_log))+
 #   geom_col(position="dodge",fill="lightblue",width=.75)+
 #   geom_hline(yintercept=0,alpha=.85,linetype="dashed")+
