@@ -164,7 +164,7 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
   # find bayes factor and check if not finite or if =0
   tmp_bf <- count_to_bf(posterior,prior_count)
   if(tmp_bf['bf_0u',1]==0 | !is.finite(tmp_bf['bf_0u',1])){ # re-sample as needed
-    M <- 500000000000
+    M <- 2.5e+13
     do_sample <- T
     while(do_sample){
       # print("re-sampling")
@@ -177,7 +177,7 @@ run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
         print("hit sample limit")
         do_sample <- F
       }else{
-        M <- M+500000000000
+        M <- M+2.5e+13
       }
     }
   }
