@@ -1,3 +1,4 @@
+# setup ====================================================================================
 rm(list=ls())
 library(here)
 library(tidyverse)
@@ -8,13 +9,17 @@ library(furrr)
 library(scales)
 library(multinomineq)
 
-do_models <- T
+# whether or not to try and run models
+do_models <- F
+
 # whether or not to do parallel
 do_parallel_bf <- F
 do_parallel_post <- F
 
+# where to store results
 results_dir <- here("analysis/order_constraints/results/")
 
+# process data ====================================================================================
 # read in data, only include critical trials, recode bw cond to be more understandable
 d <- here("data","cleaned","bw_all.csv") %>%
   read_csv() %>%
@@ -29,7 +34,7 @@ order_levels <- c("tcd","tdc","cdt","ctd","dtc","dct")
 # DTC=p5
 # DCT=p6
 
-# critical choice props ===========================================================================
+# critical choice props 
 d_order <- d %>%
   rowwise() %>%
   mutate(min=which.min(c(a1,a2,a3))) %>%
@@ -85,6 +90,7 @@ d_order_counts_wide <- d_order_props %>%
   select(-prop) %>%
   pivot_wider(names_from = order, values_from = n, values_fill = 0)
 
+# import models ====================================================================================
 read_model_A <- function(f, skip, nlines,ncol=5){
   m <- scan(f,skip=skip,nlines=nlines) %>%
     matrix(nrow = nlines, ncol = ncol,byrow=T)
@@ -95,7 +101,6 @@ read_model_B <- function(f, skip, nlines){
   m <- scan(f, skip=skip, nlines=nlines)
   return(m)
 }
-
 
 repulsion_A <- read_model_A(here("analysis/order_constraints/repulsion.txt"),
                             skip=2,nlines=10)
@@ -109,10 +114,10 @@ nonmonotonic_repulsion_A <- read_model_A(here("analysis/order_constraints/non-mo
                             skip=2,nlines=14)
 nonmonotonic_repulsion_B <- read_model_B(here("analysis/order_constraints/non-monotonic_repulsion.txt"),
                             skip=17,nlines=14)
-nonmonotonic_repulsion_strong_A <- read_model_A(here("analysis/order_constraints/non-monotonic_repulsion_strong.txt"),
-                                         skip=2,nlines=13)
-nonmonotonic_repulsion_strong_B <- read_model_B(here("analysis/order_constraints/non-monotonic_repulsion_strong.txt"),
-                                         skip=16,nlines=13)
+# nonmonotonic_repulsion_strong_A <- read_model_A(here("analysis/order_constraints/non-monotonic_repulsion_strong.txt"),
+#                                          skip=2,nlines=13)
+# nonmonotonic_repulsion_strong_B <- read_model_B(here("analysis/order_constraints/non-monotonic_repulsion_strong.txt"),
+#                                          skip=16,nlines=13)
 nonmonotonic_attraction_A <- read_model_A(here("analysis/order_constraints/non-monotonic_attraction.txt"),
                                          skip=2,nlines=8)
 nonmonotonic_attraction_B <- read_model_B(here("analysis/order_constraints/non-monotonic_attraction.txt"),
@@ -122,26 +127,27 @@ similarity_A <- read_model_A(here("analysis/order_constraints/similarity.txt"),
 similarity_B <- read_model_B(here("analysis/order_constraints/similarity.txt"),
                              skip=18,nlines=15)
 models <- list(
-  # list(attraction_A,
-  #      attraction_B,
-  #      "attraction"),
-  # list(repulsion_A,
-  #      repulsion_B,
-  #      "repulsion"),
-  # list(nonmonotonic_repulsion_A,
-  #      nonmonotonic_repulsion_B,
-  #      "non-monotonic_repulsion"),
-  # # list(nonmonotonic_repulsion_strong_A,
-  # #      nonmonotonic_repulsion_strong_B,
-  # #      "non-monotonic_repulsion_strong"),
-  # list(nonmonotonic_attraction_A,
-  #      nonmonotonic_attraction_B,
-  #      "non-monotonic_attraction"),
+  list(attraction_A,
+       attraction_B,
+       "attraction"),
+  list(repulsion_A,
+       repulsion_B,
+       "repulsion"),
+  list(nonmonotonic_repulsion_A,
+       nonmonotonic_repulsion_B,
+       "non-monotonic_repulsion"),
+  # list(nonmonotonic_repulsion_strong_A,
+  #      nonmonotonic_repulsion_strong_B,
+  #      "non-monotonic_repulsion_strong"),
+  list(nonmonotonic_attraction_A,
+       nonmonotonic_attraction_B,
+       "non-monotonic_attraction"),
   list(similarity_A,
        similarity_B,
        "similarity")
 )
 
+# functions for running models ====================================================================================
 run_model_bf <- function(data, model, sub_n, distance, M_init=1e3){
   
   M <- M_init
@@ -291,19 +297,6 @@ run_model_post_wrapper <- function(data_all, model_current, distance_cond, resul
   }
 }
 
-# testing ================================================================================================================================================
-# 
-# run_model_post_wrapper(filter(d_order_counts_wide,
-#                  sub_n %in% c(22,3922) & distance==2),
-#           model=models[[1]],
-#           distance=2,M=)
-# 
-# run_model_post_wrapper(filter(d_order_counts_wide,
-#                               sub_n %in% c(22,3922) & distance==2) %>%
-#                          select(-c(sub_n,distance)) %>%
-#                          unlist(as.vector(.)),
-#                        model=models[[1]],
-#                        sub_n=22,distance=2)
 # run analyses ============================================================================================================================================================
 # IMPORTANT - NUMBER OF SAMPLES 
 M_init_post <- 50000 # need a lot less for posterior distributions, if p=0 it's okay
@@ -389,157 +382,150 @@ if(do_models){
 
 
 # # load results ========================================================================================================================
-# load_results_bf <- function(f){
-#   if(!str_detect(f,"jpeg|pdf")){
-#     load(f)
-#     return(model_results_bf)
-#   }
-# }
-# load_results_post <- function(f){
-#   if(!str_detect(f,"jpeg|pdf")){
-#     load(f)
-#     model_results_post_1 <- model_results_post %>%
-#       list_rbind()
-#     return(model_results_post_1)
-#   }
-# }
+model_results_bf <- here("analysis/order_constraints/results/bf.csv") %>%
+  read_csv() %>%
+  group_by(model, sub_n, distance) %>%
+  filter(M==max(M)) %>%
+  ungroup() %>%
+  filter(comparison=="bf_0u") %>%
+  select(sub_n,distance,model,bf)
 
-# model_levels <- c("none",
-#                  "repulsion",
-#                  "attraction",
-#                  "non-monotonic_repulsion",
-#                  "non-monotonic_repulsion_strong",
-#                  "non-monotonic_attraction")#,
-#                  #"similarity")
-# model_labels <- c(
-#   "none",
-#   "repulsion",
-#   "attraction",
-#   "non-monotonic repulsion",
-#   "non-monotonic repulsion-strong",
-#   "non-monotonic attraction")#,
-#   #"similarity"
-# #)
-# model_results_all_bf <- here("analysis/order_constraints/results/bf.csv") %>%
-#   read_csv()
-# model_results_all_post <-  here("analysis/order_constraints/results/post.csv") %>%
-#   read_csv()
-#
+model_results_post <-  here("analysis/order_constraints/results/post.csv") %>%
+  read_csv() %>%
+  select(sub_n,distance,model,ppp)
+
+model_results_bf_post <- model_results_bf %>%
+  left_join(model_results_post) %>%
+  arrange(sub_n,distance,desc(bf))
+
 # # # first examine bayes factors ================================================================
-#
-# model_results_all_bf_data <- model_results_all_bf %>%
-#   left_join(d_order_counts_wide)
-# 
-# model_results_all_bf_data %>%
-#   group_by(distance,model) %>%
-#   summarise(n_zero=sum(bf==0),
-#             n_not_finite=sum(!is.finite(bf))) %>%
-#   ungroup() %>%
-#   arrange(model) %>%
-#   print(n=nrow(.))
-# model_results_all_bf_max <- model_results_all_bf_data %>%
-#   group_by(sub_n,distance) %>%
-#   mutate(max_bf=max(bf,na.rm=T)) %>%
-#   ungroup() %>%
-#   filter(bf==max_bf) %>%
-#   ungroup() %>%
-#   left_join(model_results_all_post) %>%
-#   mutate(model=case_when(
-#     bf<1~"none",
-#     T~model
-#   ))
-# model_results_all_bf_max %>%
-#   group_by(distance)%>%
-#   summarise(n=n()) %>%
-#   ungroup()
-# 
-# model_counts <- model_results_all_bf_max %>%
-#   group_by(model,distance) %>%
-#   summarise(n=n()) %>%
-#   ungroup() %>%
-#   group_by(distance) %>%
-#   mutate(perc=100*(n/sum(n))) %>%
-#   ungroup() %>%
-#   arrange(distance, model, desc(n)) %>%
-#   mutate(distance=str_glue("{distance}% TDD"),
-#          distance=factor(distance,
-#                          levels=c("2% TDD",
-#                                   "5% TDD",
-#                                   "9% TDD",
-#                                   "14% TDD")))
-# model_counts %>%
-#   print(n=30)
-# 
-# model_counts %>%
-#   # mutate(model=factor(model,
-#   #                     levels=model_levels,
-#   #                     labels=model_labels)) %>%
-#   arrange(distance, desc(n)) %>%
-#   ggplot(aes(model,n))+
-#   geom_col(position="dodge",fill="lightblue")+
-#   labs(x="model",y="N preferred")+
-#   coord_flip()+
-#   facet_wrap(vars(distance),nrow=2)+
-#   ggthemes::theme_few()+
-#   theme(text=element_text(size=14))
-# ggsave(filename = path(results_dir,glue("bf_counts_{M_init}_samples.pdf")),
-#        width=5,height=5)
-# # # #
-# model_summaries  <- model_results_all_bf %>%
-#   mutate(distance=str_glue("{distance}% TDD"),
-#          distance=factor(distance,
-#                          levels=c("2% TDD",
-#                                   "5% TDD",
-#                                   "9% TDD",
-#                                   "14% TDD"))) %>%
-#   filter(model!="none") %>%
-#   mutate(l=log10(bf)) %>%
-#   group_by(distance, model) %>%
-#   summarise(bf_joint_log=sum(log10(bf)),
-#             bf_joint=10^bf_joint_log) %>%
-#   ungroup() %>%
-#   arrange(distance,model,desc(bf_joint_log))
-# 
-# 
-# model_summaries %>%
-#   # mutate(model=factor(model,
-#   #                     levels=model_levels,
-#   #                     labels=model_labels)) %>%
-#   ggplot(aes(model,bf_joint_log))+
-#   geom_col(position="dodge",fill="lightblue",width=.75)+
-#   geom_hline(yintercept=0,alpha=.85,linetype="dashed")+
-#   labs(x="model",y="log10 joint bayes factor")+
-#   coord_flip()+
-#   facet_wrap(vars(distance),nrow=2,scales="free_x")+
-#   ggthemes::theme_few()+
-#   theme(text=element_text(size=14))
-# ggsave(filename = path(results_dir,glue("bf_joint_{M_init}_samples.pdf")),
-#        width=5,height=5)
-# 
-# # posteriors ============================================================
-# model_results_all_bf_max_w_post <- model_results_all_bf_max %>%
-#   left_join(model_results_all_post)
-# model_results_all_bf_max_w_post %>%
-#   mutate(reject=case_when(
-#     ppp<.05 ~ "reject",
-#     ppp>=.05~"fail to reject"
-#   ),
-#   reject=factor(reject,levels=c("reject","fail to reject"))) %>%
-#   group_by(model,distance,reject) %>%
-#   summarise(n=n()) %>%
-#   ungroup() %>%
-#   pivot_wider(names_from = reject,
-#               values_from = n,
-#               values_fill = 0) %>%
-#   print(n=30)
-# 
-# model_results_all_bf_max_w_post %>%
-#   ggplot(aes(ppp))+
-#   geom_histogram(fill="lightblue")+
-#   facet_grid(model~distance)+
-#   ggthemes::theme_few()
-# 
-# model_results_all_bf_max %>%
-#   filter(model=="none") %>%
-#   select(sub_n,distance,tcd,tdc,ctd,cdt,dtc,dct) %>%
-#   print(n=30)
+model_results_bf %>%
+  group_by(distance,model) %>%
+  summarise(n_zero=sum(bf==0),
+            n_not_finite=sum(!is.finite(bf))) %>%
+  ungroup() %>%
+  arrange(model) %>%
+  print(n=nrow(.))
+
+sort_bfs <- function(results){
+  results <- arrange(results, desc(bf))
+  results$best <- logical(nrow(results))
+  for(i in 1:nrow(results)){
+   if(results$ppp[i]>.05){
+     results$best[i] <- T
+     break
+   }
+  }
+  results_1 <- results %>%
+    mutate(model=case_when(
+      bf<=1~"none",
+      T~model)) %>%
+    filter(best) %>%
+    select(-best)
+  return(results_1)
+}
+
+model_results_bf_post_split <- model_results_bf_post %>%
+  group_by(sub_n,distance) %>%
+  group_split() 
+
+model_results_bf_post_split_w_max <- map(model_results_bf_post_split,sort_bfs)
+model_results_bf_post_w_max <- model_results_bf_post_split_w_max %>%
+  bind_rows()
+model_levels <- c("none",
+                  "repulsion",
+                  "non-monotonic_repulsion",
+                  "attraction",
+                  "non-monotonic_attraction",
+                  "similarity")
+model_labels <- c("none",
+                  "repulsion",
+                  "non-monotonic repulsion",
+                  "attraction",
+                  "non-monotonic attraction",
+                  "similarity")
+
+
+model_counts <- model_results_bf_post_w_max %>%
+  group_by(model,distance) %>%
+  summarise(n=n()) %>%
+  ungroup() %>%
+  group_by(distance) %>%
+  mutate(perc=100*(n/sum(n))) %>%
+  ungroup() %>%
+  arrange(distance, model, desc(n)) %>%
+  mutate(distance=str_glue("{distance}% TDD"),
+         distance=factor(distance,
+                         levels=c("2% TDD",
+                                  "5% TDD",
+                                  "9% TDD",
+                                  "14% TDD")),
+         model=factor(model,levels=model_levels,
+                      labels=model_labels))
+
+
+model_counts %>%
+  arrange(distance, desc(n)) %>%
+  ggplot(aes(model,n))+
+  geom_col(position="dodge",fill="lightblue")+
+  labs(x="model",y="N preferred")+
+  coord_flip()+
+  facet_wrap(vars(distance),nrow=2)+
+  ggthemes::theme_few()+
+  theme(text=element_text(size=14))
+ggsave(filename = path(results_dir,glue("bf_counts.pdf")),
+       width=5,height=5)
+# # #
+model_summaries_by_distance  <- model_results_bf %>%
+  mutate(distance=str_glue("{distance}% TDD"),
+         distance=factor(distance,
+                         levels=c("2% TDD",
+                                  "5% TDD",
+                                  "9% TDD",
+                                  "14% TDD"))) %>%
+  filter(model!="none") %>%
+  mutate(l=log10(bf)) %>%
+  group_by(distance, model) %>%
+  summarise(bf_joint_log=sum(log10(bf)),
+            bf_joint=10^(bf_joint_log)) %>%
+  ungroup() %>%
+  filter(is.finite(bf_joint_log)) %>%
+  arrange(distance,model,desc(bf_joint_log))
+
+model_summaries_by_distance %>%
+  ggplot(aes(model,bf_joint_log))+
+  geom_col(position="dodge",fill="lightblue",width=.75)+
+  geom_hline(yintercept=0,alpha=.85,linetype="dashed")+
+  coord_flip()+
+  facet_wrap(vars(distance),nrow=2,scales="free_y")+
+  ggthemes::theme_few()+
+  theme(text=element_text(size=14))
+ggsave(filename = path(results_dir,glue("bf_joint_by_distance.pdf")),
+       width=8,height=5)
+
+model_summaries <- model_results_bf %>%
+  mutate(distance=str_glue("{distance}% TDD"),
+         distance=factor(distance,
+                         levels=c("2% TDD",
+                                  "5% TDD",
+                                  "9% TDD",
+                                  "14% TDD"))) %>%
+  filter(model!="none") %>%
+  mutate(l=log10(bf)) %>%
+  group_by(model) %>%
+  summarise(bf_joint_log=sum(log10(bf)),
+            bf_joint=10^(bf_joint_log)) %>%
+  ungroup() %>%
+  filter(is.finite(bf_joint_log)) %>%
+  arrange(model,desc(bf_joint_log))
+
+model_summaries %>%
+  ggplot(aes(model,bf_joint_log))+
+  geom_col(position="dodge",fill="lightblue",width=.75)+
+  geom_hline(yintercept=0,alpha=.85,linetype="dashed")+
+  coord_flip()+
+  ggthemes::theme_few()+
+  theme(text=element_text(size=14))
+ggsave(filename = path(results_dir,glue("bf_joint_all.pdf")),
+       width=8,height=5)
+model_summaries
